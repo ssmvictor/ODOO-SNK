@@ -1,0 +1,5 @@
+# ODOO-SNK - Dependências
+# Instalar com: pip install -r requirements.txt
+
+python-dotenv>=1.0.0
+requests>=2.31.0

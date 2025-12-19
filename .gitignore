@@ -1,0 +1,14 @@
+# Arquivos de configuração
+.env
+*.pyc
+.gemini
+loginSNK/bearer_token.txt
+__pycache__/
+
+# Arquivos de IDE
+.vscode/
+.idea/
+
+# Arquivos temporários
+*.log
+*.tmp
