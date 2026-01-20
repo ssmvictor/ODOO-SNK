@@ -30,7 +30,7 @@ class ModuloService:
         Returns:
             Lista de dicionários com informações dos módulos.
         """
-        print("\n📦 MÓDULOS INSTALADOS:")
+        print("\n[MODULOS INSTALADOS]")
         print("-" * 50)
         
         modulos = self._conexao.search_read(
@@ -42,7 +42,7 @@ class ModuloService:
         )
         
         for m in modulos:
-            print(f"  • {m['name']:30} - {m['shortdesc']}")
+            print(f"  - {m['name']:30} - {m['shortdesc']}")
         
         print(f"\nTotal: {len(modulos)} módulos instalados")
         return modulos
@@ -56,7 +56,7 @@ class ModuloService:
         Returns:
             Lista de dicionários com status dos módulos.
         """
-        print("\n🔍 VERIFICANDO MÓDULOS:")
+        print("\n[VERIFICANDO MODULOS]")
         print("-" * 50)
         
         modulos = self._conexao.search_read(
@@ -66,7 +66,7 @@ class ModuloService:
         )
         
         for m in modulos:
-            status = "✅ INSTALADO" if m['state'] == 'installed' else f"❌ {m['state']}"
+            status = "[OK] INSTALADO" if m['state'] == 'installed' else f"[X] {m['state']}"
             print(f"  {m['name']:15} - {status} - {m['shortdesc']}")
         
         return modulos
@@ -83,7 +83,7 @@ def main() -> None:
     modulo_service.listar_instalados()
     
     # Verificar módulos específicos de produtos
-    print("\n🔍 VERIFICANDO MÓDULO DE PRODUTOS:")
+    print("\n[VERIFICANDO MODULO DE PRODUTOS]")
     modulo_service.verificar_modulos(['product', 'sale', 'stock', 'purchase'])
 
 

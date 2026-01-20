@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Exemplos de operações CRUD com Produtos no Odoo 18 via API XML-RPC
+Exemplos de operações CRUD com Produtos no Odoo 18 via API OdooRPC
 Utiliza a conexão centralizada do módulo loginOdoo.conexao
 """
 
@@ -44,7 +44,7 @@ class ProdutoService:
         Returns:
             Lista de dicionários com os produtos.
         """
-        print("\n📦 LISTANDO PRODUTOS")
+        print("\n[LISTANDO PRODUTOS]")
         print("-" * 70)
         
         produtos = self._conexao.search_read(
@@ -56,9 +56,9 @@ class ProdutoService:
         )
         
         if not produtos:
-            print("  ℹ️ Nenhum produto cadastrado ainda.")
+            print("  [INFO] Nenhum produto cadastrado ainda.")
         else:
-            print(f"  📊 Total: {len(produtos)} produto(s)\n")
+            print(f"  [TOTAL] {len(produtos)} produto(s)\n")
             for p in produtos:
                 codigo = p.get('default_code') or 'S/N'
                 print(f"  ID: {p['id']:4} | {codigo:15} | R$ {p['list_price']:>10.2f} | {p['name'][:40]}")
@@ -74,7 +74,7 @@ class ProdutoService:
         Returns:
             Dicionário com dados do produto ou None se não encontrado.
         """
-        print(f"\n🔍 BUSCANDO PRODUTO: {codigo}")
+        print(f"\n[BUSCANDO PRODUTO: {codigo}]")
         print("-" * 50)
         
         produtos = self._conexao.search_read(
@@ -85,7 +85,7 @@ class ProdutoService:
         
         if produtos:
             p = produtos[0]
-            print(f"  ✅ Encontrado!")
+            print(f"  [OK] Encontrado!")
             print(f"  ID: {p['id']}")
             print(f"  Nome: {p['name']}")
             print(f"  Código: {p.get('default_code', 'N/A')}")
@@ -93,7 +93,7 @@ class ProdutoService:
             print(f"  Tipo: {p['type']}")
             return p
         else:
-            print(f"  ❌ Produto não encontrado")
+            print(f"  [X] Produto não encontrado")
             return None
     
     def buscar_por_nome(self, nome: str, limite: int = 10) -> list[dict[str, Any]]:
@@ -106,7 +106,7 @@ class ProdutoService:
         Returns:
             Lista de produtos encontrados.
         """
-        print(f"\n🔍 BUSCANDO PRODUTOS COM NOME: '{nome}'")
+        print(f"\n[BUSCANDO PRODUTOS COM NOME: '{nome}']")
         print("-" * 50)
         
         produtos = self._conexao.search_read(
@@ -140,7 +140,7 @@ class ProdutoService:
         Returns:
             ID do produto criado ou None se já existir.
         """
-        print(f"\n➕ CRIANDO PRODUTO: {nome}")
+        print(f"\n[CRIANDO PRODUTO: {nome}]")
         print("-" * 50)
         
         # Verificar se já existe
@@ -151,7 +151,7 @@ class ProdutoService:
         )
         
         if existentes:
-            print(f"  ⚠️ Produto com código {codigo} já existe!")
+            print(f"  [AVISO] Produto com código {codigo} já existe!")
             return None
         
         # Criar produto
@@ -164,7 +164,7 @@ class ProdutoService:
             'purchase_ok': True,
         })
         
-        print(f"  ✅ Produto criado com ID: {produto_id}")
+        print(f"  [OK] Produto criado com ID: {produto_id}")
         return produto_id
     
     def atualizar(self, produto_id: int, valores: dict[str, Any]) -> bool:
@@ -177,13 +177,13 @@ class ProdutoService:
         Returns:
             True se atualizado com sucesso.
         """
-        print(f"\n✏️ ATUALIZANDO PRODUTO ID: {produto_id}")
+        print(f"\n[ATUALIZANDO PRODUTO ID: {produto_id}]")
         print("-" * 50)
         
         resultado = self._conexao.atualizar(self.MODELO, produto_id, valores)
         
         if resultado:
-            print(f"  ✅ Produto atualizado com sucesso!")
+            print(f"  [OK] Produto atualizado com sucesso!")
             produto = self._conexao.search_read(
                 self.MODELO,
                 dominio=[['id', '=', produto_id]],
@@ -192,7 +192,7 @@ class ProdutoService:
             if produto:
                 print(f"  Novos valores: {produto[0]}")
         else:
-            print(f"  ❌ Falha ao atualizar produto")
+            print(f"  [X] Falha ao atualizar produto")
         
         return resultado
     
@@ -205,7 +205,7 @@ class ProdutoService:
         Returns:
             True se excluído com sucesso.
         """
-        print(f"\n🗑️ EXCLUINDO PRODUTO ID: {produto_id}")
+        print(f"\n[EXCLUINDO PRODUTO ID: {produto_id}]")
         print("-" * 50)
         
         produto = self._conexao.search_read(
@@ -215,7 +215,7 @@ class ProdutoService:
         )
         
         if not produto:
-            print(f"  ❌ Produto não encontrado")
+            print(f"  [X] Produto não encontrado")
             return False
         
         print(f"  Produto: {produto[0]['name']} ({produto[0].get('default_code', 'S/N')})")
@@ -223,9 +223,9 @@ class ProdutoService:
         resultado = self._conexao.excluir(self.MODELO, produto_id)
         
         if resultado:
-            print(f"  ✅ Produto excluído com sucesso!")
+            print(f"  [OK] Produto excluído com sucesso!")
         else:
-            print(f"  ❌ Falha ao excluir produto")
+            print(f"  [X] Falha ao excluir produto")
         
         return resultado
 
@@ -249,7 +249,7 @@ class CategoriaService:
         Returns:
             Lista de dicionários com as categorias.
         """
-        print("\n📁 CATEGORIAS DE PRODUTOS")
+        print("\n[CATEGORIAS DE PRODUTOS]")
         print("-" * 50)
         
         categorias = self._conexao.search_read(
@@ -269,17 +269,17 @@ class CategoriaService:
 def main() -> None:
     """Função principal de demonstração."""
     print("=" * 55)
-    print("🛒 API DE PRODUTOS - ODOO 18")
+    print("[API DE PRODUTOS - ODOO 18]")
     print("=" * 55)
     
     try:
         # Conectar ao Odoo usando a função centralizada
         conexao = criar_conexao()
     except OdooConfigError as e:
-        print(f"❌ Erro de configuração: {e}")
+        print(f"[ERRO] Erro de configuracao: {e}")
         sys.exit(1)
     except OdooConnectionError as e:
-        print(f"❌ Erro de conexão: {e}")
+        print(f"[ERRO] Erro de conexao: {e}")
         sys.exit(1)
     
     # Inicializar serviços
@@ -294,7 +294,7 @@ def main() -> None:
     
     # 3. Criar um produto de teste
     print("\n" + "=" * 55)
-    print("📝 EXEMPLO: CRIANDO UM PRODUTO DE TESTE")
+    print("[EXEMPLO: CRIANDO UM PRODUTO DE TESTE]")
     print("=" * 55)
     
     produto_id = produto_service.criar(
@@ -315,9 +315,9 @@ def main() -> None:
         produto_service.listar()
     
     print("\n" + "=" * 55)
-    print("✅ DEMONSTRAÇÃO CONCLUÍDA")
+    print("[OK] DEMONSTRACAO CONCLUIDA")
     print("=" * 55)
-    print("\n💡 DICA: Acesse o Odoo para ver o produto criado!")
+    print("\n[DICA] Acesse o Odoo para ver o produto criado!")
     print(f"   URL: {conexao.config.url}/odoo")
 
 
