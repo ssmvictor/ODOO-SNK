@@ -1,5 +1,6 @@
 # Arquivos de configuração
 .env
+.env copy
 *.pyc
 .gemini
 loginSNK/bearer_token.txt
