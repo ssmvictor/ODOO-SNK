@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Módulo loginOdoo - Autenticação e conexão com o Odoo 18 via XML-RPC e JSON-RPC.
+Módulo loginOdoo - Autenticação e conexão com o Odoo 18 via OdooRPC.
 """
 
 from .conexao import (
     OdooConfig,
     OdooConexao,
-    OdooConexaoJsonRpc,
     OdooError,
     OdooConfigError,
     OdooConnectionError,
@@ -17,7 +16,6 @@ from .conexao import (
 __all__ = [
     "OdooConfig",
     "OdooConexao",
-    "OdooConexaoJsonRpc",
     "OdooError",
     "OdooConfigError",
     "OdooConnectionError",
