@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Módulo Produtos - Serviços CRUD para produtos do Odoo 18.
+Módulo Produtos - Serviços CRUD para produtos do Odoo.
 """
 
 from .odoo_produtos_api import (

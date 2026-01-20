@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Módulo de conexão com Odoo 18 via OdooRPC
+Módulo de conexão com Odoo via OdooRPC
 Fornece classes e funções reutilizáveis para autenticação e comunicação com a API.
 """
 

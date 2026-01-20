@@ -1,9 +1,9 @@
-# 🔗 ODOO-SNK - Integração Sankhya → Odoo 18
+# 🔗 ODOO-SNK - Integração Sankhya → Odoo
 
-Este projeto fornece uma arquitetura Python para **integração entre o ERP Sankhya e Odoo 18 Community** via APIs, utilizando boas práticas de programação como **OOP**, **tipagem estática** e **código limpo**.
+Este projeto fornece uma arquitetura Python para **integração entre o ERP Sankhya e Odoo** via APIs, utilizando boas práticas de programação como **OOP**, **tipagem estática** e **código limpo**.
 
 > [!IMPORTANT]
-> **Objetivo Principal**: Migrar/sincronizar dados do Sankhya para o Odoo 18, permitindo uma transição gradual entre os sistemas ou operação híbrida.
+> **Objetivo Principal**: Migrar/sincronizar dados do Sankhya para o Odoo, permitindo uma transição gradual entre os sistemas ou operação híbrida.
 
 ---
 
@@ -24,7 +24,7 @@ Este projeto fornece uma arquitetura Python para **integração entre o ERP Sank
 
 ### Propósito da Integração
 
-A intenção deste projeto é criar uma **integração robusta entre o ERP Sankhya e o Odoo 18**, permitindo:
+A intenção deste projeto é criar uma **integração robusta entre o ERP Sankhya e o Odoo**, permitindo:
 
 - 🔄 **Sincronização de Produtos** - Migrar catálogo de produtos do Sankhya para Odoo
 - 👥 **Sincronização de Clientes/Fornecedores** - Manter parceiros atualizados
@@ -48,7 +48,7 @@ flowchart LR
         MS[ModuloService]
     end
     
-    subgraph Odoo["🌐 Odoo 18"]
+    subgraph Odoo["🌐 Odoo"]
         OP[product.template]
         OC[res.partner]
         OE[stock.quant]
@@ -258,7 +258,7 @@ SANKHYA_PASSWORD=sua_senha_segura
 
 | Sistema | URL | Porta |
 |---------|-----|-------|
-| Odoo 18 | `http://192.168.1.47` | 8081 |
+| Odoo | `http://192.168.1.47` | 8081 |
 | Sankhya | `https://api.sankhya.com.br` | 443 |
 
 ---

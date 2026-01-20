@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Módulo loginOdoo - Autenticação e conexão com o Odoo 18 via OdooRPC.
+Módulo loginOdoo - Autenticação e conexão com o Odoo via OdooRPC.
 """
 
 from .conexao import (

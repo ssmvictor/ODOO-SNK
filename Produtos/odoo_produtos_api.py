@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Exemplos de operações CRUD com Produtos no Odoo 18 via API OdooRPC
+Exemplos de operações CRUD com Produtos no Odoo via API OdooRPC
 Utiliza a conexão centralizada do módulo loginOdoo.conexao
 """
 
@@ -269,7 +269,7 @@ class CategoriaService:
 def main() -> None:
     """Função principal de demonstração."""
     print("=" * 55)
-    print("[API DE PRODUTOS - ODOO 18]")
+    print("[API DE PRODUTOS - ODOO]")
     print("=" * 55)
     
     try:
