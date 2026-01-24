@@ -5,6 +5,7 @@
 .gemini
 loginSNK/bearer_token.txt
 __pycache__/
+.agent/
 
 # Arquivos de IDE
 .vscode/
