@@ -9,10 +9,15 @@ cria/atualiza no Odoo via OdooRPC.
 
 from __future__ import annotations
 
+
 import os
 import sys
 from pathlib import Path
 from typing import Any, Optional
+
+# Adicionar raiz do projeto ao sys.path para permitir execução direta
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.append(str(PROJECT_ROOT))
 
 from dotenv import load_dotenv
 
@@ -32,8 +37,16 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
 from rich import print as rprint
 
-# Raiz do projeto (script está em Produtos/)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+def configurar_saida_utf8() -> None:
+    """Força UTF-8 na saída para evitar falhas com emoji no Windows."""
+    for stream_name in ("stdout", "stderr"):
+        stream = getattr(sys, stream_name, None)
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+configurar_saida_utf8()
 
 # Carregar .env da raiz do projeto
 load_dotenv(PROJECT_ROOT / ".env")
@@ -132,14 +145,26 @@ def mapear_produto(prod_snk: dict[str, Any]) -> dict[str, Any]:
     refforn = prod_snk.get("REFFORN")
     barcode = str(refforn).strip() if refforn else None
 
-    dados_odoo: dict[str, Any] = {
+    # Mapeamento para Odoo 19:
+    # - type: consu/service/combo
+    # - is_storable: controla se o produto movimenta estoque
+    usoprod = str(prod_snk.get("USOPROD", "R")).strip().upper()
+    tipo_odoo = "consu"
+    is_storable = True
+
+    if usoprod == "S":
+        tipo_odoo = "service"
+        is_storable = False
+
+    dados_odoo = {
         "name": descrprod or f"Produto {codprod}",
         "default_code": codprod,
         "list_price": preco,
         "weight": peso,
         "sale_ok": True,
         "purchase_ok": True,
-        "type": "consu",  # Odoo 19 API: 'consu' (Mercadorias), 'service', 'combo'
+        "type": tipo_odoo,
+        "is_storable": is_storable,
     }
 
 
