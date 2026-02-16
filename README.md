@@ -137,10 +137,25 @@ SANKHYA_TOKEN=seu_token_proprietario
 
 ## 🔄 Sincronização de Produtos
 
-### Executar
+- `Produtos/sincronizar_produtos.py`: Sincroniza **Produtos** e seus preços.
+- `Produtos/sincronizar_locais.py`: Sincroniza **Locais de Estoque** (TGFLOC -> stock.location).
+- `Produtos/sincronizar_grupos.py`: Sincroniza **Grupos de Produtos** (TGFGRU -> product.category).
+- `Produtos/sincronizar_estoque.py`: Sincroniza **Saldo de Estoque** (TGFEST -> stock.quant).
+
+### Execução
+
+Você pode executar cada script individualmente:
 
 ```bash
-python -m Produtos.sincronizar_produtos
+# Sincronizar Produtos (Base)
+python c:\suporte\ODOO-SNK\Produtos\sincronizar_produtos.py
+
+# Sincronizar Tabelas Auxiliares
+python c:\suporte\ODOO-SNK\Produtos\sincronizar_locais.py
+python c:\suporte\ODOO-SNK\Produtos\sincronizar_grupos.py
+
+# Sincronizar Estoque (Requer Produtos e Locais já sincronizados)
+python c:\suporte\ODOO-SNK\Produtos\sincronizar_estoque.py
 ```
 
 ### O que faz
