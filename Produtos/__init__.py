@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Módulo Produtos - Serviços CRUD para produtos do Odoo.
+Módulo Produtos - Sincronização Sankhya → Odoo.
 """
 
-from .odoo_produtos_api import (
-    ProdutoService,
-    CategoriaService,
+from .sincronizar_produtos import (
+    executar_sincronizacao,
+    mapear_produto,
+    sincronizar_produto,
 )
 
 __all__ = [
-    "ProdutoService",
-    "CategoriaService",
+    "executar_sincronizacao",
+    "mapear_produto",
+    "sincronizar_produto",
 ]

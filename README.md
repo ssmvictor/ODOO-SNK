@@ -1,189 +1,53 @@
-# 🔗 ODOO-SNK - Integração Sankhya → Odoo
+# 🔗 ODOO-SNK — Integração Sankhya → Odoo
 
-Este projeto fornece uma arquitetura Python para **integração entre o ERP Sankhya e Odoo** via APIs, utilizando boas práticas de programação como **OOP**, **tipagem estática** e **código limpo**.
+Projeto Python para **sincronização de dados entre o ERP Sankhya e Odoo 19 Enterprise**, utilizando o [Sankhya SDK Python](https://github.com/ssmvictor/Sankhya-SDK-python) (OAuth2) e [OdooRPC](https://pypi.org/project/OdooRPC/).
 
 > [!IMPORTANT]
-> **Objetivo Principal**: Migrar/sincronizar dados do Sankhya para o Odoo, permitindo uma transição gradual entre os sistemas ou operação híbrida.
+> **Objetivo**: Migrar/sincronizar dados do Sankhya para o Odoo, permitindo operação híbrida ou transição gradual entre os sistemas.
 
 ---
 
 ## 📋 Índice
 
-- [Visão Geral](#-visão-geral)
-- [Arquitetura do Projeto](#-arquitetura-do-projeto)
-- [Boas Práticas Utilizadas](#-boas-práticas-utilizadas)
+- [Arquitetura](#-arquitetura)
 - [Estrutura do Projeto](#-estrutura-do-projeto)
 - [Requisitos](#️-requisitos)
 - [Configuração](#-configuração)
+- [Sincronização de Produtos](#-sincronização-de-produtos)
 - [Módulos](#-módulos)
 - [Como Usar](#-como-usar)
+- [Solução de Problemas](#-solução-de-problemas)
 
 ---
 
-## 📖 Visão Geral
-
-### Propósito da Integração
-
-A intenção deste projeto é criar uma **integração robusta entre o ERP Sankhya e o Odoo**, permitindo:
-
-- 🔄 **Sincronização de Produtos** - Migrar catálogo de produtos do Sankhya para Odoo
-- 👥 **Sincronização de Clientes/Fornecedores** - Manter parceiros atualizados
-- 📦 **Sincronização de Estoque** - Controle de inventário unificado
-- 📄 **Sincronização de Pedidos** - Fluxo de vendas integrado
-
-### Diagrama de Integração
+## 🏗️ Arquitetura
 
 ```mermaid
 flowchart LR
     subgraph Sankhya["🏢 Sankhya ERP"]
-        SP[Produtos]
-        SC[Clientes]
-        SE[Estoque]
+        TGFPRO["TGFPRO\n(Produtos)"]
     end
-    
-    subgraph Integration["🔗 ODOO-SNK"]
-        LS[SankhyaConexao]
-        LO[OdooConexao]
-        PS[ProdutoService]
-        MS[ModuloService]
+
+    subgraph Script["🔗 ODOO-SNK"]
+        SDK["Sankhya SDK\n(OAuth2)"]
+        GW["GatewayClient\n(DbExplorerSP)"]
+        MAP["Mapeamento\nTGFPRO → product.template"]
+        RPC["OdooRPC"]
     end
-    
-    subgraph Odoo["🌐 Odoo"]
-        OP[product.template]
-        OC[res.partner]
-        OE[stock.quant]
+
+    subgraph Odoo["🌐 Odoo 19 Enterprise"]
+        PT["product.template"]
     end
-    
-    SP --> LS
-    SC --> LS
-    SE --> LS
-    
-    LS --> Integration
-    LO --> Odoo
-    
-    PS --> OP
-    MS --> OC
+
+    TGFPRO --> SDK --> GW --> MAP --> RPC --> PT
 ```
 
-### Módulos Disponíveis
+### Fluxo de Sincronização
 
-| Módulo | Classe Principal | Descrição |
-|--------|------------------|-----------|
-| **loginOdoo** | `OdooConexao` | Conexão XML-RPC/JSON-RPC com Odoo |
-| **loginSNK** | `SankhyaConexao` | Autenticação REST API Sankhya |
-| **Produtos** | `ProdutoService` | CRUD de produtos no Odoo |
-| **verificar_modulos** | `ModuloService` | Lista módulos instalados |
-
----
-
-## 🏗️ Arquitetura do Projeto
-
-### Padrões de Design Utilizados
-
-```mermaid
-classDiagram
-    class OdooConfig {
-        +url: str
-        +db: str
-        +username: str
-        +password: str
-        +validar() list~str~
-    }
-    
-    class OdooConexao {
-        -_config: OdooConfig
-        -_uid: int
-        -_models: ServerProxy
-        +conectar() bool
-        +search_read() list
-        +criar() int
-        +atualizar() bool
-        +excluir() bool
-    }
-    
-    class ProdutoService {
-        -_conexao: OdooConexao
-        +listar() list
-        +buscar_por_codigo() dict
-        +criar() int
-        +atualizar() bool
-        +excluir() bool
-    }
-    
-    OdooConfig <-- OdooConexao
-    OdooConexao <-- ProdutoService
-```
-
----
-
-## ✨ Boas Práticas Utilizadas
-
-Este projeto segue as melhores práticas de desenvolvimento Python:
-
-### 1. Programação Orientada a Objetos (OOP)
-
-```python
-# ✅ Classes bem definidas com responsabilidade única
-class ProdutoService:
-    """Serviço para operações CRUD em produtos."""
-    
-    def __init__(self, conexao: OdooConexao) -> None:
-        self._conexao = conexao
-```
-
-### 2. Tipagem Estática (Type Hints)
-
-```python
-# ✅ Todos os métodos possuem anotações de tipo
-def buscar_por_codigo(self, codigo: str) -> Optional[dict[str, Any]]:
-    """Busca produto pelo código interno."""
-    ...
-```
-
-### 3. Dataclasses para Configuração
-
-```python
-# ✅ Configurações tipadas e imutáveis
-@dataclass
-class OdooConfig:
-    url: str
-    db: str
-    username: str
-    password: str
-```
-
-### 4. Princípios SOLID
-
-| Princípio | Aplicação |
-|-----------|-----------|
-| **S**ingle Responsibility | Cada classe tem uma única responsabilidade |
-| **O**pen/Closed | Classes abertas para extensão, fechadas para modificação |
-| **D**ependency Inversion | Services dependem de abstrações (conexões) |
-
-### 5. Padrões Recomendados
-
-| Padrão | Descrição | Exemplo |
-|--------|-----------|---------|
-| **Repository Pattern** | Abstração de acesso a dados | `ProdutoService` |
-| **Factory Functions** | Funções utilitárias de criação | `criar_conexao()` |
-| **Configuration Object** | Configuração encapsulada | `OdooConfig` |
-
-### 6. Documentação
-
-```python
-# ✅ Docstrings completas com Args e Returns
-def criar(self, nome: str, codigo: str, preco: float) -> Optional[int]:
-    """Cria novo produto no Odoo.
-    
-    Args:
-        nome: Nome do produto.
-        codigo: Código interno (default_code).
-        preco: Preço de venda.
-        
-    Returns:
-        ID do produto criado ou None se já existir.
-    """
-```
+1. **Autenticação** no Sankhya via OAuth2 (client credentials)
+2. **Execução SQL** via `DbExplorerSP.executeQuery` lendo `produtos.sql`
+3. **Mapeamento** dos campos TGFPRO → `product.template`
+4. **Upsert** no Odoo — cria produto novo ou atualiza existente (por `default_code`)
 
 ---
 
@@ -191,38 +55,50 @@ def criar(self, nome: str, codigo: str, preco: float) -> Optional[int]:
 
 ```
 ODOO-SNK/
-├── .env                        # Credenciais (não versionar!)
-├── .env.example                # Modelo de configuração
+├── .env                          # Credenciais (NÃO versionar!)
+├── .env.example                  # Modelo de configuração
 ├── .gitignore
-├── README.md                   # Este arquivo
-├── requirements.txt            # Dependências Python
-├── verificar_modulos_odoo.py   # Lista módulos do Odoo
+├── README.md
+├── requirements.txt              # Dependências Python
 │
-├── loginOdoo/                  # Conexão Odoo
-│   └── conexao.py              # OdooConfig, OdooConexao
+├── verificar_modulos_odoo.py     # Lista módulos instalados no Odoo
 │
-├── loginSNK/                   # Conexão Sankhya
-│   ├── conexao.py              # SankhyaConfig, SankhyaConexao
-│   └── bearer_token.txt        # Token gerado (não versionar!)
+├── loginOdoo/                    # Módulo de conexão Odoo
+│   ├── __init__.py
+│   └── conexao.py                # OdooConfig, OdooConexao, criar_conexao()
 │
-└── Produtos/                   # API de Produtos Odoo
-    ├── README.md               # Documentação detalhada
-    └── odoo_produtos_api.py    # ProdutoService, CategoriaService
+├── loginSNK/                     # Módulo de conexão Sankhya
+│   ├── __init__.py
+│   ├── conexao.py                # SankhyaConfig, SankhyaConexao (SDK OAuth2)
+│   ├── dbexplorer_EXAMPLE.py     # Exemplo de uso do GatewayClient
+│   └── sql/
+│       └── produtos.sql          # Query SQL para buscar produtos
+│
+└── Produtos/                     # Sincronização de Produtos
+    ├── __init__.py
+    └── sincronizar_produtos.py   # 🔄 Script principal de sincronização
 ```
 
 ---
 
 ## ⚙️ Requisitos
 
+- **Python** 3.10+
+- **Odoo** 19 Enterprise (SaaS ou on-premise)
+- **Sankhya** com API Gateway habilitada
+
+### Instalação de Dependências
+
 ```bash
 pip install -r requirements.txt
 ```
 
-**Dependências:**
-- `python-dotenv>=1.0.0` - Carregamento de variáveis de ambiente
-- `requests>=2.31.0` - Requisições HTTP (Sankhya)
-
-**Python:** 3.10+ (necessário para tipagem moderna)
+| Dependência | Uso |
+|-------------|-----|
+| `python-dotenv` | Carregamento de variáveis de ambiente |
+| `requests` | Requisições HTTP |
+| `odoorpc` | Comunicação XML-RPC com Odoo |
+| `sankhya-sdk-python` | Autenticação OAuth2 e API Gateway Sankhya |
 
 ---
 
@@ -234,139 +110,122 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-### 2. Configurar credenciais
+### 2. Preencher credenciais
 
 ```env
 # =============================================
-# CONEXÃO ODOO 18
+# CONEXÃO ODOO 19
 # =============================================
-ODOO_URL=http://192.168.1.47:8081
-ODOO_DB=odoo_producao
+ODOO_URL=https://sua-empresa.odoo.com
+ODOO_DB=nome_do_banco
 ODOO_EMAIL=seu_email@empresa.com
 ODOO_SENHA=sua_senha_segura
 
 # =============================================
-# CONEXÃO SANKHYA
+# CONEXÃO SANKHYA (OAuth2 via SDK)
 # =============================================
-SANKHYA_APPKEY=sua_appkey_aqui
-SANKHYA_TOKEN=seu_token_aqui
-SANKHYA_USERNAME=seu_usuario
-SANKHYA_PASSWORD=sua_senha_segura
+# Credenciais obtidas no Portal do Desenvolvedor Sankhya
+SANKHYA_CLIENT_ID=seu_client_id
+SANKHYA_CLIENT_SECRET=seu_client_secret
+SANKHYA_TOKEN=seu_token_proprietario
 ```
 
-### Servidores
+> [!CAUTION]
+> **Nunca versione o arquivo `.env`** com credenciais reais. Use `.env.example` como modelo.
 
-| Sistema | URL | Porta |
-|---------|-----|-------|
-| Odoo | `http://192.168.1.47` | 8081 |
-| Sankhya | `https://api.sankhya.com.br` | 443 |
+---
+
+## 🔄 Sincronização de Produtos
+
+### Executar
+
+```bash
+python -m Produtos.sincronizar_produtos
+```
+
+### O que faz
+
+| Etapa | Descrição |
+|-------|-----------|
+| **[1/4]** | Conecta ao Sankhya via OAuth2 |
+| **[2/4]** | Carrega e executa `loginSNK/sql/produtos.sql` |
+| **[3/4]** | Conecta ao Odoo via OdooRPC |
+| **[4/4]** | Cria ou atualiza produtos no Odoo |
+
+### Mapeamento de Campos
+
+| TGFPRO (Sankhya) | product.template (Odoo) | Descrição |
+|-------------------|------------------------|-----------|
+| `CODPROD` | `default_code` | Código interno (chave do upsert) |
+| `DESCRPROD` | `name` | Nome do produto |
+| `VLRVENDA` | `list_price` | Preço de venda |
+| `REFFORN` | `barcode` | Código de barras |
+| `PESOBRUTO` | `weight` | Peso bruto |
+| — | `type` | Fixo: `consu` (Mercadorias) |
+| — | `sale_ok` | Fixo: `True` |
+| — | `purchase_ok` | Fixo: `True` |
+
+### Lógica de Upsert
+
+- **Produto novo** (não existe no Odoo pelo `default_code`): **cria**
+- **Produto existente**: **atualiza** nome, preço, peso, barcode
+
+### Personalizar a Query SQL
+
+Edite o arquivo `loginSNK/sql/produtos.sql`:
+
+```sql
+SELECT * FROM TGFPRO PRO
+  WHERE PRO.ATIVO = 'S'
+  AND PRO.CODPROD = 210000
+```
 
 ---
 
 ## 📦 Módulos
 
-### 1. loginOdoo - Conexão Odoo
+### loginOdoo — Conexão Odoo
 
-Classes para conexão com Odoo via XML-RPC e JSON-RPC.
-
-```bash
-python loginOdoo/conexao.py
-```
-
-**Uso programático:**
 ```python
 from loginOdoo.conexao import criar_conexao
 
-# Cria conexão autenticada automaticamente
 conexao = criar_conexao()
-
-# Buscar registros
 parceiros = conexao.search_read('res.partner', campos=['name', 'email'])
 ```
 
----
+### loginSNK — Conexão Sankhya (OAuth2)
 
-### 2. loginSNK - Conexão Sankhya
-
-Classes para autenticação na API REST Sankhya.
-
-```bash
-python loginSNK/conexao.py
-```
-
-**Uso programático:**
 ```python
 from loginSNK.conexao import criar_conexao_sankhya
 
-# Autentica e obtém token
 conexao = criar_conexao_sankhya()
-
-# Headers prontos para requisições
-headers = conexao.obter_headers_autorizacao()
+session = conexao.session  # SankhyaSession autenticada
 ```
 
----
+### Produtos — CRUD Odoo
 
-### 3. Produtos - CRUD Odoo
-
-Serviço completo para gerenciamento de produtos.
-
-```bash
-python Produtos/odoo_produtos_api.py
-```
-
-**Uso programático:**
 ```python
 from loginOdoo.conexao import criar_conexao
 from Produtos.odoo_produtos_api import ProdutoService
 
 conexao = criar_conexao()
-produto_service = ProdutoService(conexao)
+svc = ProdutoService(conexao)
 
-# Listar produtos
-produtos = produto_service.listar(limite=50)
+# Listar
+produtos = svc.listar(limite=50)
 
-# Criar produto
-produto_id = produto_service.criar(
-    nome="Novo Produto",
-    codigo="PROD-001",
-    preco=99.90
-)
+# Criar
+produto_id = svc.criar(nome="Produto X", codigo="PROD-001", preco=99.90)
 
 # Atualizar
-produto_service.atualizar(produto_id, {'list_price': 149.90})
-```
-
----
-
-### 4. verificar_modulos - Módulos Odoo
-
-Serviço para listar módulos instalados.
-
-```bash
-python verificar_modulos_odoo.py
-```
-
-**Uso programático:**
-```python
-from loginOdoo.conexao import criar_conexao
-from verificar_modulos_odoo import ModuloService
-
-conexao = criar_conexao()
-modulo_service = ModuloService(conexao)
-
-# Listar instalados
-modulo_service.listar_instalados()
-
-# Verificar específicos
-modulo_service.verificar_modulos(['product', 'sale', 'stock'])
+svc.atualizar(produto_id, {'list_price': 149.90})
 ```
 
 ---
 
 ## 🚀 Como Usar
 
-### 1. Instalação
+### Instalação rápida
 
 ```bash
 git clone <repositorio>
@@ -376,7 +235,7 @@ cp .env.example .env
 # Edite .env com suas credenciais
 ```
 
-### 2. Testar conexões
+### Testar conexões
 
 ```bash
 # Testar Odoo
@@ -386,35 +245,15 @@ python loginOdoo/conexao.py
 python loginSNK/conexao.py
 ```
 
-### 3. Exemplo de integração
+### Sincronizar produtos
 
-```python
-from loginOdoo.conexao import criar_conexao
-from loginSNK.conexao import criar_conexao_sankhya
-from Produtos.odoo_produtos_api import ProdutoService
-
-# Conectar aos dois sistemas
-odoo = criar_conexao()
-sankhya = criar_conexao_sankhya()
-
-# Serviço de produtos
-produto_service = ProdutoService(odoo)
-
-# TODO: Implementar sincronização Sankhya → Odoo
+```bash
+python -m Produtos.sincronizar_produtos
 ```
 
 ---
 
-## 🔒 Segurança
-
-- ⚠️ **Nunca versione arquivos `.env`** com credenciais reais
-- 🔐 Use `.env.example` como modelo (sem credenciais)
-- 🌐 Prefira HTTPS em ambientes de produção
-- ✅ Todos os scripts validam variáveis obrigatórias
-
----
-
-## 📝 Modelos do Odoo
+## 📝 Modelos do Odoo 19
 
 | Modelo | Descrição |
 |--------|-----------|
@@ -424,24 +263,43 @@ produto_service = ProdutoService(odoo)
 | `res.partner` | Clientes/Fornecedores |
 | `ir.module.module` | Módulos instalados |
 
+### Tipos de Produto (Odoo 19 API)
+
+| Valor API | Label na UI | Descrição |
+|-----------|-------------|-----------|
+| `consu` | Mercadorias | Bens tangíveis |
+| `service` | Serviço | Ofertas intangíveis |
+| `combo` | Combo | Mix de bens e serviços |
+
 ---
 
 ## 🆘 Solução de Problemas
 
 | Erro | Solução |
 |------|---------|
-| `Variáveis não configuradas` | Configure o arquivo `.env` |
+| `ModuleNotFoundError: odoorpc` | `pip install odoorpc` |
+| `ModuleNotFoundError: sankhya_sdk` | `pip install -r requirements.txt` |
+| `SANKHYA_CLIENT_ID não configurado` | Preencha o `.env` com as credenciais |
+| `Access Denied` (Odoo) | Verifique `ODOO_EMAIL` e `ODOO_SENHA` |
 | `database does not exist` | Verifique `ODOO_DB` |
-| `Access Denied` | Verifique credenciais Odoo |
-| `Connection refused` | Verifique se o servidor está rodando |
-| Token Sankhya inválido | Verifique `SANKHYA_APPKEY` |
+| `Wrong value for type` | Use `consu`, `service` ou `combo` |
+| `Connection refused` | Verifique se o servidor está acessível |
+
+---
+
+## 🔒 Segurança
+
+- ⚠️ **Nunca versione** o `.env` com credenciais reais
+- 🔐 Use `.env.example` como modelo
+- 🌐 Prefira HTTPS em produção
+- ✅ Todos os scripts validam variáveis obrigatórias
 
 ---
 
 ## 📄 Licença
 
-Projeto de uso interno - Onix Brasil.
+Projeto de uso interno — Grupo AEL.
 
 ---
 
-**Atualizado em:** 19/12/2024
+**Atualizado em:** 16/02/2026

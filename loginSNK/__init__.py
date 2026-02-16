@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Módulo loginSNK - Autenticação e conexão com a API Sankhya.
+Módulo loginSNK - Autenticação e conexão com a API Sankhya via SDK.
 """
 
 from .conexao import (

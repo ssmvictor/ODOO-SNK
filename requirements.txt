@@ -3,3 +3,5 @@
 
 python-dotenv>=1.0.0
 odoorpc>=0.10.1
+sankhya-sdk-python @ git+https://github.com/ssmvictor/Sankhya-SDK-python.git@main
+rich>=13.0.0
