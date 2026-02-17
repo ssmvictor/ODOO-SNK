@@ -1,0 +1,21 @@
+Checking NUMCAD (Barcode) in Odoo:
+ - Name: ABADIO ANTONIO DA SILVA GABRIEL
+   NUMCAD (Barcode): 843
+   Department: Modelagem
+------------------------------
+ - Name: ADEGENARIO FIDELES DA SILVA
+   NUMCAD (Barcode): 757
+   Department: Manutenção
+------------------------------
+ - Name: ADEILSON SOUSA
+   NUMCAD (Barcode): 459
+   Department: Fundição/louças
+------------------------------
+ - Name: ADELIA APARECIDA GOMES
+   NUMCAD (Barcode): 186
+   Department: Louças Sanitárias
+------------------------------
+ - Name: ADEMILSON ROSA DOS SANTOS
+   NUMCAD (Barcode): 187
+   Department: Fundição/louças
+------------------------------
