@@ -1,0 +1,1108 @@
+{
+  "quality_check_fields": {
+    "id": {
+      "type": "integer",
+      "string": "ID",
+      "required": false,
+      "relation": ""
+    },
+    "display_name": {
+      "type": "char",
+      "string": "Nome exibido",
+      "required": false,
+      "relation": ""
+    },
+    "activity_state": {
+      "type": "selection",
+      "string": "Status da atividade",
+      "required": false,
+      "relation": ""
+    },
+    "activity_user_id": {
+      "type": "many2one",
+      "string": "Usuário responsável",
+      "required": false,
+      "relation": "res.users"
+    },
+    "activity_type_id": {
+      "type": "many2one",
+      "string": "Tipo da próxima atividade",
+      "required": false,
+      "relation": "mail.activity.type"
+    },
+    "activity_type_icon": {
+      "type": "char",
+      "string": "Ícone do tipo de atividade",
+      "required": false,
+      "relation": ""
+    },
+    "activity_date_deadline": {
+      "type": "date",
+      "string": "Prazo da próxima atividade",
+      "required": false,
+      "relation": ""
+    },
+    "my_activity_date_deadline": {
+      "type": "date",
+      "string": "Prazo da minha atividade",
+      "required": false,
+      "relation": ""
+    },
+    "activity_summary": {
+      "type": "char",
+      "string": "Resumo da próxima atividade",
+      "required": false,
+      "relation": ""
+    },
+    "activity_exception_decoration": {
+      "type": "selection",
+      "string": "Decoração de atividade excepcional",
+      "required": false,
+      "relation": ""
+    },
+    "activity_exception_icon": {
+      "type": "char",
+      "string": "Ícone",
+      "required": false,
+      "relation": ""
+    },
+    "activity_plans_ids": {
+      "type": "many2many",
+      "string": "Plano de atividades",
+      "required": false,
+      "relation": "mail.activity.plan"
+    },
+    "activity_calendar_event_id": {
+      "type": "many2one",
+      "string": "Evento no calendário para a próxima atividade",
+      "required": false,
+      "relation": "calendar.event"
+    },
+    "message_is_follower": {
+      "type": "boolean",
+      "string": "É um seguidor",
+      "required": false,
+      "relation": ""
+    },
+    "message_follower_ids": {
+      "type": "one2many",
+      "string": "Seguidores",
+      "required": false,
+      "relation": "mail.followers"
+    },
+    "message_partner_ids": {
+      "type": "many2many",
+      "string": "Seguidores (usuários)",
+      "required": false,
+      "relation": "res.partner"
+    },
+    "has_message": {
+      "type": "boolean",
+      "string": "Tem uma mensagem",
+      "required": false,
+      "relation": ""
+    },
+    "message_needaction": {
+      "type": "boolean",
+      "string": "Requer ação",
+      "required": false,
+      "relation": ""
+    },
+    "message_needaction_counter": {
+      "type": "integer",
+      "string": "Número de ações",
+      "required": false,
+      "relation": ""
+    },
+    "message_has_error": {
+      "type": "boolean",
+      "string": "Erro na entrega da mensagem",
+      "required": false,
+      "relation": ""
+    },
+    "message_has_error_counter": {
+      "type": "integer",
+      "string": "Número de erros",
+      "required": false,
+      "relation": ""
+    },
+    "message_attachment_count": {
+      "type": "integer",
+      "string": "Total de anexos",
+      "required": false,
+      "relation": ""
+    },
+    "rating_ids": {
+      "type": "one2many",
+      "string": "Avaliações",
+      "required": false,
+      "relation": "rating.rating"
+    },
+    "website_message_ids": {
+      "type": "one2many",
+      "string": "Mensagens do site",
+      "required": false,
+      "relation": "mail.message"
+    },
+    "message_has_sms_error": {
+      "type": "boolean",
+      "string": "Erro no envio de SMS",
+      "required": false,
+      "relation": ""
+    },
+    "name": {
+      "type": "char",
+      "string": "Referência",
+      "required": false,
+      "relation": ""
+    },
+    "point_id": {
+      "type": "many2one",
+      "string": "Ponto de controle",
+      "required": false,
+      "relation": "quality.point"
+    },
+    "title": {
+      "type": "char",
+      "string": "Título",
+      "required": false,
+      "relation": ""
+    },
+    "quality_state": {
+      "type": "selection",
+      "string": "Status",
+      "required": false,
+      "relation": ""
+    },
+    "control_date": {
+      "type": "datetime",
+      "string": "Data de controle",
+      "required": false,
+      "relation": ""
+    },
+    "product_id": {
+      "type": "many2one",
+      "string": "Produto",
+      "required": false,
+      "relation": "product.product"
+    },
+    "picking_id": {
+      "type": "many2one",
+      "string": "Separação",
+      "required": false,
+      "relation": "stock.picking"
+    },
+    "partner_id": {
+      "type": "many2one",
+      "string": "Usuário",
+      "required": false,
+      "relation": "res.partner"
+    },
+    "lot_ids": {
+      "type": "many2many",
+      "string": "Lote/série",
+      "required": false,
+      "relation": "stock.lot"
+    },
+    "user_id": {
+      "type": "many2one",
+      "string": "Responsável",
+      "required": false,
+      "relation": "res.users"
+    },
+    "team_id": {
+      "type": "many2one",
+      "string": "Equipe",
+      "required": true,
+      "relation": "quality.alert.team"
+    },
+    "company_id": {
+      "type": "many2one",
+      "string": "Empresa",
+      "required": true,
+      "relation": "res.company"
+    },
+    "alert_ids": {
+      "type": "one2many",
+      "string": "Alertas",
+      "required": false,
+      "relation": "quality.alert"
+    },
+    "alert_count": {
+      "type": "integer",
+      "string": "Nº de alertas de qualidade",
+      "required": false,
+      "relation": ""
+    },
+    "note": {
+      "type": "html",
+      "string": "Nota",
+      "required": false,
+      "relation": ""
+    },
+    "test_type_id": {
+      "type": "many2one",
+      "string": "Tipo de teste",
+      "required": true,
+      "relation": "quality.point.test_type"
+    },
+    "test_type": {
+      "type": "char",
+      "string": "Nome técnico",
+      "required": false,
+      "relation": ""
+    },
+    "picture": {
+      "type": "binary",
+      "string": "Foto",
+      "required": false,
+      "relation": ""
+    },
+    "additional_note": {
+      "type": "text",
+      "string": "Nota adicional",
+      "required": false,
+      "relation": ""
+    },
+    "failure_location_id": {
+      "type": "many2one",
+      "string": "Local da reprovação",
+      "required": false,
+      "relation": "stock.location"
+    },
+    "workorder_id": {
+      "type": "many2one",
+      "string": "Operação",
+      "required": false,
+      "relation": "mrp.workorder"
+    },
+    "workcenter_id": {
+      "type": "many2one",
+      "string": "Centro de trabalho",
+      "required": false,
+      "relation": "mrp.workcenter"
+    },
+    "production_id": {
+      "type": "many2one",
+      "string": "Ordem de produção",
+      "required": false,
+      "relation": "mrp.production"
+    },
+    "product_tracking": {
+      "type": "selection",
+      "string": "Rastreamento",
+      "required": false,
+      "relation": ""
+    },
+    "next_check_id": {
+      "type": "many2one",
+      "string": "Próxima verificação",
+      "required": false,
+      "relation": "quality.check"
+    },
+    "previous_check_id": {
+      "type": "many2one",
+      "string": "Verificação anterior",
+      "required": false,
+      "relation": "quality.check"
+    },
+    "move_id": {
+      "type": "many2one",
+      "string": "Movimentação de estoque",
+      "required": false,
+      "relation": "stock.move"
+    },
+    "component_id": {
+      "type": "many2one",
+      "string": "Componente",
+      "required": false,
+      "relation": "product.product"
+    },
+    "component_barcode": {
+      "type": "char",
+      "string": "Código de barras",
+      "required": false,
+      "relation": ""
+    },
+    "component_uom_id": {
+      "type": "many2one",
+      "string": "Unidade do componente",
+      "required": false,
+      "relation": "uom.uom"
+    },
+    "finished_lot_ids": {
+      "type": "many2many",
+      "string": "Número de série/lote",
+      "required": false,
+      "relation": "stock.lot"
+    },
+    "component_tracking": {
+      "type": "selection",
+      "string": "O componente é rastreado?",
+      "required": false,
+      "relation": ""
+    },
+    "is_user_working": {
+      "type": "boolean",
+      "string": "O usuário atual está trabalhando",
+      "required": false,
+      "relation": ""
+    },
+    "consumption": {
+      "type": "selection",
+      "string": "Consumo",
+      "required": false,
+      "relation": ""
+    },
+    "working_state": {
+      "type": "selection",
+      "string": "Status do centro de trabalho",
+      "required": false,
+      "relation": ""
+    },
+    "result": {
+      "type": "char",
+      "string": "Resultado",
+      "required": false,
+      "relation": ""
+    },
+    "finished_product_sequence": {
+      "type": "float",
+      "string": "Número de sequência do produto acabado",
+      "required": false,
+      "relation": ""
+    },
+    "worksheet_document": {
+      "type": "binary",
+      "string": "Imagem/PDF",
+      "required": false,
+      "relation": ""
+    },
+    "employee_id": {
+      "type": "many2one",
+      "string": "Funcionário",
+      "required": false,
+      "relation": "hr.employee"
+    },
+    "failure_message": {
+      "type": "html",
+      "string": "Mensagem de reprovação",
+      "required": false,
+      "relation": ""
+    },
+    "measure": {
+      "type": "float",
+      "string": "Medida",
+      "required": false,
+      "relation": ""
+    },
+    "measure_success": {
+      "type": "selection",
+      "string": "Sucesso da medição",
+      "required": false,
+      "relation": ""
+    },
+    "tolerance_min": {
+      "type": "float",
+      "string": "Tolerância mínima",
+      "required": false,
+      "relation": ""
+    },
+    "tolerance_max": {
+      "type": "float",
+      "string": "Tolerância máxima",
+      "required": false,
+      "relation": ""
+    },
+    "warning_message": {
+      "type": "text",
+      "string": "Mensagem de alerta",
+      "required": false,
+      "relation": ""
+    },
+    "norm_unit": {
+      "type": "char",
+      "string": "Unidade da norma",
+      "required": false,
+      "relation": ""
+    },
+    "qty_to_test": {
+      "type": "float",
+      "string": "Quantidade a ser testada",
+      "required": false,
+      "relation": ""
+    },
+    "qty_tested": {
+      "type": "float",
+      "string": "Quantidade testada",
+      "required": false,
+      "relation": ""
+    },
+    "measure_on": {
+      "type": "selection",
+      "string": "Controle por",
+      "required": true,
+      "relation": ""
+    },
+    "move_line_id": {
+      "type": "many2one",
+      "string": "Linha de movimentação de estoque",
+      "required": false,
+      "relation": "stock.move.line"
+    },
+    "lot_name": {
+      "type": "char",
+      "string": "Nome de número de lote/série",
+      "required": false,
+      "relation": ""
+    },
+    "lot_line_id": {
+      "type": "many2one",
+      "string": "Linha do lote",
+      "required": false,
+      "relation": "stock.lot"
+    },
+    "qty_line": {
+      "type": "float",
+      "string": "Quantidade",
+      "required": false,
+      "relation": ""
+    },
+    "qty_passed": {
+      "type": "float",
+      "string": "Quantidade aprovada",
+      "required": false,
+      "relation": ""
+    },
+    "qty_failed": {
+      "type": "float",
+      "string": "Quantidade reprovada",
+      "required": false,
+      "relation": ""
+    },
+    "uom_id": {
+      "type": "many2one",
+      "string": "Unidade",
+      "required": false,
+      "relation": "uom.uom"
+    },
+    "show_lot_text": {
+      "type": "boolean",
+      "string": "Mostrar texto do lote",
+      "required": false,
+      "relation": ""
+    },
+    "is_lot_tested_fractionally": {
+      "type": "boolean",
+      "string": "Lote testado de forma fracionada",
+      "required": false,
+      "relation": ""
+    },
+    "testing_percentage_within_lot": {
+      "type": "float",
+      "string": "Porcentagem de teste dentro do lote",
+      "required": false,
+      "relation": ""
+    },
+    "spreadsheet_id": {
+      "type": "many2one",
+      "string": "Planilha",
+      "required": false,
+      "relation": "quality.check.spreadsheet"
+    },
+    "allowed_product_ids": {
+      "type": "many2many",
+      "string": "Produto permitido",
+      "required": false,
+      "relation": "product.product"
+    },
+    "spreadsheet_template_id": {
+      "type": "many2one",
+      "string": "Modelo de planilha",
+      "required": false,
+      "relation": "quality.spreadsheet.template"
+    },
+    "hide_picking_id": {
+      "type": "integer",
+      "string": "Ocultar separação",
+      "required": false,
+      "relation": ""
+    },
+    "hide_production_id": {
+      "type": "integer",
+      "string": "Ocultar Produção",
+      "required": false,
+      "relation": ""
+    },
+    "hide_repair_id": {
+      "type": "integer",
+      "string": "Reparo de couro",
+      "required": false,
+      "relation": ""
+    },
+    "operation_id": {
+      "type": "many2one",
+      "string": "Etapa",
+      "required": false,
+      "relation": "mrp.routing.workcenter"
+    },
+    "repair_id": {
+      "type": "many2one",
+      "string": "Ordem de reparo",
+      "required": false,
+      "relation": "repair.order"
+    }
+  },
+  "quality_point_fields": {
+    "id": {
+      "type": "integer",
+      "string": "ID",
+      "required": false,
+      "relation": ""
+    },
+    "display_name": {
+      "type": "char",
+      "string": "Nome exibido",
+      "required": false,
+      "relation": ""
+    },
+    "message_is_follower": {
+      "type": "boolean",
+      "string": "É um seguidor",
+      "required": false,
+      "relation": ""
+    },
+    "message_follower_ids": {
+      "type": "one2many",
+      "string": "Seguidores",
+      "required": false,
+      "relation": "mail.followers"
+    },
+    "message_partner_ids": {
+      "type": "many2many",
+      "string": "Seguidores (usuários)",
+      "required": false,
+      "relation": "res.partner"
+    },
+    "has_message": {
+      "type": "boolean",
+      "string": "Tem uma mensagem",
+      "required": false,
+      "relation": ""
+    },
+    "message_needaction": {
+      "type": "boolean",
+      "string": "Requer ação",
+      "required": false,
+      "relation": ""
+    },
+    "message_needaction_counter": {
+      "type": "integer",
+      "string": "Número de ações",
+      "required": false,
+      "relation": ""
+    },
+    "message_has_error": {
+      "type": "boolean",
+      "string": "Erro na entrega da mensagem",
+      "required": false,
+      "relation": ""
+    },
+    "message_has_error_counter": {
+      "type": "integer",
+      "string": "Número de erros",
+      "required": false,
+      "relation": ""
+    },
+    "message_attachment_count": {
+      "type": "integer",
+      "string": "Total de anexos",
+      "required": false,
+      "relation": ""
+    },
+    "rating_ids": {
+      "type": "one2many",
+      "string": "Avaliações",
+      "required": false,
+      "relation": "rating.rating"
+    },
+    "website_message_ids": {
+      "type": "one2many",
+      "string": "Mensagens do site",
+      "required": false,
+      "relation": "mail.message"
+    },
+    "message_has_sms_error": {
+      "type": "boolean",
+      "string": "Erro no envio de SMS",
+      "required": false,
+      "relation": ""
+    },
+    "name": {
+      "type": "char",
+      "string": "Referência",
+      "required": true,
+      "relation": ""
+    },
+    "sequence": {
+      "type": "integer",
+      "string": "Sequência",
+      "required": false,
+      "relation": ""
+    },
+    "title": {
+      "type": "char",
+      "string": "Título",
+      "required": false,
+      "relation": ""
+    },
+    "team_id": {
+      "type": "many2one",
+      "string": "Equipe",
+      "required": true,
+      "relation": "quality.alert.team"
+    },
+    "product_ids": {
+      "type": "many2many",
+      "string": "Produtos",
+      "required": false,
+      "relation": "product.product"
+    },
+    "product_category_ids": {
+      "type": "many2many",
+      "string": "Categorias de produtos",
+      "required": false,
+      "relation": "product.category"
+    },
+    "picking_type_ids": {
+      "type": "many2many",
+      "string": "Tipos de operação",
+      "required": true,
+      "relation": "stock.picking.type"
+    },
+    "company_id": {
+      "type": "many2one",
+      "string": "Empresa",
+      "required": true,
+      "relation": "res.company"
+    },
+    "user_id": {
+      "type": "many2one",
+      "string": "Responsável",
+      "required": false,
+      "relation": "res.users"
+    },
+    "active": {
+      "type": "boolean",
+      "string": "Ativo",
+      "required": false,
+      "relation": ""
+    },
+    "check_count": {
+      "type": "integer",
+      "string": "Contagem de verificações",
+      "required": false,
+      "relation": ""
+    },
+    "check_ids": {
+      "type": "one2many",
+      "string": "Verificar",
+      "required": false,
+      "relation": "quality.check"
+    },
+    "test_type_id": {
+      "type": "many2one",
+      "string": "Tipo de teste",
+      "required": true,
+      "relation": "quality.point.test_type"
+    },
+    "test_type": {
+      "type": "char",
+      "string": "Nome técnico",
+      "required": false,
+      "relation": ""
+    },
+    "note": {
+      "type": "html",
+      "string": "Nota",
+      "required": false,
+      "relation": ""
+    },
+    "reason": {
+      "type": "html",
+      "string": "Causa",
+      "required": false,
+      "relation": ""
+    },
+    "failure_location_ids": {
+      "type": "many2many",
+      "string": "Locais das reprovações",
+      "required": false,
+      "relation": "stock.location"
+    },
+    "show_failure_location": {
+      "type": "boolean",
+      "string": "Mostrar local da falha",
+      "required": false,
+      "relation": ""
+    },
+    "is_workorder_step": {
+      "type": "boolean",
+      "string": "É uma etapa da ordem de trabalho?",
+      "required": false,
+      "relation": ""
+    },
+    "operation_id": {
+      "type": "many2one",
+      "string": "Etapa",
+      "required": false,
+      "relation": "mrp.routing.workcenter"
+    },
+    "bom_id": {
+      "type": "many2one",
+      "string": "Lista de materiais",
+      "required": false,
+      "relation": "mrp.bom"
+    },
+    "bom_active": {
+      "type": "boolean",
+      "string": "Lista de materiais relacionada ativa",
+      "required": false,
+      "relation": ""
+    },
+    "component_ids": {
+      "type": "one2many",
+      "string": "Componente",
+      "required": false,
+      "relation": "product.product"
+    },
+    "bom_product_ids": {
+      "type": "one2many",
+      "string": "Produto da LM",
+      "required": false,
+      "relation": "product.product"
+    },
+    "test_report_type": {
+      "type": "selection",
+      "string": "Tipo de relatório",
+      "required": true,
+      "relation": ""
+    },
+    "worksheet_document": {
+      "type": "binary",
+      "string": "Imagem/PDF",
+      "required": false,
+      "relation": ""
+    },
+    "component_id": {
+      "type": "many2one",
+      "string": "Produto a ser registrado",
+      "required": false,
+      "relation": "product.product"
+    },
+    "failure_message": {
+      "type": "html",
+      "string": "Mensagem de reprovação",
+      "required": false,
+      "relation": ""
+    },
+    "measure_on": {
+      "type": "selection",
+      "string": "Controle por",
+      "required": true,
+      "relation": ""
+    },
+    "measure_frequency_type": {
+      "type": "selection",
+      "string": "Frequência de controle",
+      "required": true,
+      "relation": ""
+    },
+    "measure_frequency_value": {
+      "type": "float",
+      "string": "Porcentagem",
+      "required": false,
+      "relation": ""
+    },
+    "measure_frequency_unit_value": {
+      "type": "integer",
+      "string": "Valor da unidade de frequência",
+      "required": false,
+      "relation": ""
+    },
+    "measure_frequency_unit": {
+      "type": "selection",
+      "string": "Unidade de frequência de medida",
+      "required": false,
+      "relation": ""
+    },
+    "is_lot_tested_fractionally": {
+      "type": "boolean",
+      "string": "Lote testado de forma fracionada",
+      "required": false,
+      "relation": ""
+    },
+    "testing_percentage_within_lot": {
+      "type": "float",
+      "string": "Porcentagem de teste dentro do lote",
+      "required": false,
+      "relation": ""
+    },
+    "norm": {
+      "type": "float",
+      "string": "Norma",
+      "required": false,
+      "relation": ""
+    },
+    "tolerance_min": {
+      "type": "float",
+      "string": "Tolerância mínima",
+      "required": false,
+      "relation": ""
+    },
+    "tolerance_max": {
+      "type": "float",
+      "string": "Tolerância máxima",
+      "required": false,
+      "relation": ""
+    },
+    "norm_unit": {
+      "type": "char",
+      "string": "Unidade da norma",
+      "required": false,
+      "relation": ""
+    },
+    "average": {
+      "type": "float",
+      "string": "Média",
+      "required": false,
+      "relation": ""
+    },
+    "standard_deviation": {
+      "type": "float",
+      "string": "Desvio padrão",
+      "required": false,
+      "relation": ""
+    },
+    "spreadsheet_template_id": {
+      "type": "many2one",
+      "string": "Modelo de planilha",
+      "required": false,
+      "relation": "quality.spreadsheet.template"
+    },
+    "spreadsheet_check_cell": {
+      "type": "char",
+      "string": "Célula de sucesso",
+      "required": false,
+      "relation": ""
+    }
+  },
+  "existing_checks": [
+    {
+      "id": 1,
+      "name": "QC00001",
+      "quality_state": "none",
+      "point_id": [
+        1,
+        "QCP00001 - Register production"
+      ],
+      "team_id": [
+        1,
+        "Main Quality Team"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "QC00002",
+      "quality_state": "none",
+      "point_id": [
+        2,
+        "QCP00002 - Component Registration: Table Head"
+      ],
+      "team_id": [
+        1,
+        "Main Quality Team"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "QC00003",
+      "quality_state": "none",
+      "point_id": [
+        3,
+        "QCP00003 - Choice of screwdriver"
+      ],
+      "team_id": [
+        1,
+        "Main Quality Team"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "QC00005",
+      "quality_state": "none",
+      "point_id": [
+        5,
+        "QCP00005 - Table Legs"
+      ],
+      "team_id": [
+        1,
+        "Main Quality Team"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "QC00004",
+      "quality_state": "none",
+      "point_id": [
+        4,
+        "QCP00004 - Component Registration: Table Legs"
+      ],
+      "team_id": [
+        1,
+        "Main Quality Team"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "QC00006",
+      "quality_state": "none",
+      "point_id": [
+        6,
+        "QCP00006 - Print Labels"
+      ],
+      "team_id": [
+        1,
+        "Main Quality Team"
+      ]
+    }
+  ],
+  "existing_points": [
+    {
+      "id": 1,
+      "name": "QCP00001",
+      "title": "Register production",
+      "test_type_id": [
+        4,
+        "Registrar produção"
+      ],
+      "team_id": [
+        1,
+        "Main Quality Team"
+      ],
+      "product_ids": []
+    },
+    {
+      "id": 2,
+      "name": "QCP00002",
+      "title": "Component Registration: Table Head",
+      "test_type_id": [
+        3,
+        "Registrar materiais consumidos"
+      ],
+      "team_id": [
+        1,
+        "Main Quality Team"
+      ],
+      "product_ids": []
+    },
+    {
+      "id": 3,
+      "name": "QCP00003",
+      "title": "Choice of screwdriver",
+      "test_type_id": [
+        1,
+        "Instruções"
+      ],
+      "team_id": [
+        1,
+        "Main Quality Team"
+      ],
+      "product_ids": []
+    },
+    {
+      "id": 5,
+      "name": "QCP00005",
+      "title": "Table Legs",
+      "test_type_id": [
+        1,
+        "Instruções"
+      ],
+      "team_id": [
+        1,
+        "Main Quality Team"
+      ],
+      "product_ids": []
+    },
+    {
+      "id": 4,
+      "name": "QCP00004",
+      "title": "Component Registration: Table Legs",
+      "test_type_id": [
+        3,
+        "Registrar materiais consumidos"
+      ],
+      "team_id": [
+        1,
+        "Main Quality Team"
+      ],
+      "product_ids": []
+    },
+    {
+      "id": 6,
+      "name": "QCP00006",
+      "title": "Print Labels",
+      "test_type_id": [
+        6,
+        "Imprimir etiqueta"
+      ],
+      "team_id": [
+        1,
+        "Main Quality Team"
+      ],
+      "product_ids": []
+    }
+  ],
+  "test_types": [
+    {
+      "id": 1,
+      "name": "Instruções",
+      "technical_name": "instructions"
+    },
+    {
+      "id": 2,
+      "name": "Tirar foto",
+      "technical_name": "picture"
+    },
+    {
+      "id": 3,
+      "name": "Registrar materiais consumidos",
+      "technical_name": "register_consumed_materials"
+    },
+    {
+      "id": 4,
+      "name": "Registrar produção",
+      "technical_name": "register_production"
+    },
+    {
+      "id": 6,
+      "name": "Imprimir etiqueta",
+      "technical_name": "print_label"
+    },
+    {
+      "id": 7,
+      "name": "Aprovado – Reprovado",
+      "technical_name": "passfail"
+    },
+    {
+      "id": 8,
+      "name": "Medida",
+      "technical_name": "measure"
+    },
+    {
+      "id": 9,
+      "name": "Planilha",
+      "technical_name": "spreadsheet"
+    }
+  ]
+}

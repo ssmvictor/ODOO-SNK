@@ -1,0 +1,236 @@
+{
+  "departamento": {
+    "id": 9,
+    "name": "Fundição/louças"
+  },
+  "fundidores": [
+    {
+      "id": 101,
+      "name": "ADEILSON SOUSA",
+      "barcode": "459",
+      "job_title": "Fundidor peças pequenas (Ceram)",
+      "active": true
+    },
+    {
+      "id": 64,
+      "name": "ADEMILSON ROSA DOS SANTOS",
+      "barcode": "187",
+      "job_title": "Fundidor (Louças)",
+      "active": true
+    },
+    {
+      "id": 226,
+      "name": "ARTUR BORGES E SILVA",
+      "barcode": "875",
+      "job_title": "Ajudante de Produção II ",
+      "active": true
+    },
+    {
+      "id": 204,
+      "name": "BRUNO CORREA DA SILVA",
+      "barcode": "851",
+      "job_title": "Ajudante de Produção II ",
+      "active": true
+    },
+    {
+      "id": 124,
+      "name": "CALEME OZALVO",
+      "barcode": "586",
+      "job_title": "Fundidor (Louças)",
+      "active": true
+    },
+    {
+      "id": 180,
+      "name": "CHARLES LIMA FERREIRA",
+      "barcode": "804",
+      "job_title": "Ajudante de Produção III ",
+      "active": true
+    },
+    {
+      "id": 70,
+      "name": "CLEBSON OLIVEIRA NASCIMENTO",
+      "barcode": "246",
+      "job_title": "Fundidor peças pequenas (Ceram)",
+      "active": true
+    },
+    {
+      "id": 106,
+      "name": "DENIS FABIANO INACIO DOS SANTOS",
+      "barcode": "473",
+      "job_title": "Ajudante de Produção III ",
+      "active": true
+    },
+    {
+      "id": 98,
+      "name": "DERICK LOUGAN DE SOUSA SANTOS",
+      "barcode": "444",
+      "job_title": "Fundidor (Louças)",
+      "active": true
+    },
+    {
+      "id": 21,
+      "name": "DURVAL FERREIRA DE CARVALHO",
+      "barcode": "81",
+      "job_title": "Fundidor (Louças)",
+      "active": true
+    },
+    {
+      "id": 24,
+      "name": "FABIANO EUSTAQUIO DA LUZ",
+      "barcode": "90",
+      "job_title": "Fundidor peças pequenas (Ceram)",
+      "active": true
+    },
+    {
+      "id": 26,
+      "name": "FRANCISCO DE ASSIS COSTA",
+      "barcode": "93",
+      "job_title": "Ajudante de Produção IIII",
+      "active": true
+    },
+    {
+      "id": 82,
+      "name": "GARDONE CONCEIÇÃO DA SILVA",
+      "barcode": "337",
+      "job_title": "Fundidor peças pequenas (Ceram)",
+      "active": true
+    },
+    {
+      "id": 219,
+      "name": "GUSTAVO GIL SALES",
+      "barcode": "868",
+      "job_title": "Ajudante de Produção II ",
+      "active": true
+    },
+    {
+      "id": 32,
+      "name": "JACIRON ALVES DOS SANTOS",
+      "barcode": "110",
+      "job_title": "Fundidor (Louças)",
+      "active": true
+    },
+    {
+      "id": 228,
+      "name": "JAILSON AURELIANO DOS SANTOS",
+      "barcode": "877",
+      "job_title": "Ajudante de Produção II ",
+      "active": true
+    },
+    {
+      "id": 84,
+      "name": "JOAO BATISTA CONCEIÇÃO OLIVEIRA",
+      "barcode": "345",
+      "job_title": "Fundidor (Louças)",
+      "active": true
+    },
+    {
+      "id": 189,
+      "name": "LUCAS DE OLIVEIRA LIMA ",
+      "barcode": "826",
+      "job_title": "Ajudante de Produção II ",
+      "active": true
+    },
+    {
+      "id": 216,
+      "name": "LUCAS MARTINS GONÇALVES",
+      "barcode": "865",
+      "job_title": "Ajudante de Produção II ",
+      "active": true
+    },
+    {
+      "id": 39,
+      "name": "LUIS EIMAR DA CRUZ",
+      "barcode": "129",
+      "job_title": "Ajudante de Produção IIII",
+      "active": true
+    },
+    {
+      "id": 121,
+      "name": "MACIEL DOS SANTOS ARAUJO",
+      "barcode": "552",
+      "job_title": "Ajudante de Produção III ",
+      "active": true
+    },
+    {
+      "id": 83,
+      "name": "MARCO TULIO FIRMINO DA SILVA",
+      "barcode": "344",
+      "job_title": "Fundidor (Louças)",
+      "active": true
+    },
+    {
+      "id": 131,
+      "name": "MARCOS JULIO LOPES",
+      "barcode": "612",
+      "job_title": "Fundidor peças pequenas (Ceram)",
+      "active": true
+    },
+    {
+      "id": 100,
+      "name": "MARLON GLEISON DA CONCEIÇÃO SILVA",
+      "barcode": "451",
+      "job_title": "Fundidor peças pequenas (Ceram)",
+      "active": true
+    },
+    {
+      "id": 117,
+      "name": "MISAEL FONTINELE DA SILVA SOUSA",
+      "barcode": "522",
+      "job_title": "Fundidor (Louças)",
+      "active": true
+    },
+    {
+      "id": 49,
+      "name": "NILTON CESAR ALVES BARBOSA",
+      "barcode": "149",
+      "job_title": "Fundidor peças pequenas (Ceram)",
+      "active": true
+    },
+    {
+      "id": 136,
+      "name": "PEDRO HENRIQUE DA SILVA FLABILIO",
+      "barcode": "653",
+      "job_title": "Ajudante de Produção III ",
+      "active": true
+    },
+    {
+      "id": 184,
+      "name": "RODRIGO DE JESUS BRITO",
+      "barcode": "813",
+      "job_title": "Ajudante de Produção III ",
+      "active": true
+    },
+    {
+      "id": 56,
+      "name": "TEREZA CRISTINA FERNANDES",
+      "barcode": "170",
+      "job_title": "Supervisor de prod.I ",
+      "active": true
+    },
+    {
+      "id": 172,
+      "name": "WALTER SOARES DE SOUSA",
+      "barcode": "778",
+      "job_title": "Ajudante de Produção III ",
+      "active": true
+    }
+  ],
+  "nao_conformidades": {
+    "Bolhas": 5,
+    "Trincas": 6,
+    "Deformação": 7,
+    "Porosidade": 8,
+    "Dimensão fora do padrão": 9,
+    "Rachadura": 10,
+    "Manchas": 11,
+    "Quebra no desmolde": 12,
+    "Peça incompleta": 13,
+    "Rebarbas": 14,
+    "Espessura irregular": 15,
+    "Acabamento rugoso": 16
+  },
+  "equipe_qualidade": {
+    "id": 2,
+    "name": "Qualidade Fundição"
+  }
+}

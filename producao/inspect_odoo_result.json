@@ -1,0 +1,2773 @@
+{
+  "quality_modules": [
+    {
+      "id": 1031,
+      "name": "quality_control",
+      "shortdesc": "Qualidade",
+      "state": "installed"
+    },
+    {
+      "id": 1030,
+      "name": "quality",
+      "shortdesc": "Qualidade - Base",
+      "state": "installed"
+    },
+    {
+      "id": 1036,
+      "name": "quality_mrp",
+      "shortdesc": "Recursos de Fabricação para controle de qualidade",
+      "state": "installed"
+    }
+  ],
+  "departments": [
+    {
+      "id": 20,
+      "name": "Acabamento"
+    },
+    {
+      "id": 1,
+      "name": "Administração"
+    },
+    {
+      "id": 23,
+      "name": "Almoxarifado"
+    },
+    {
+      "id": 21,
+      "name": "Almoxarifado Prods.Acabamento"
+    },
+    {
+      "id": 26,
+      "name": "Classsificação Visual de Louças"
+    },
+    {
+      "id": 36,
+      "name": "Comercial"
+    },
+    {
+      "id": 37,
+      "name": "Compras"
+    },
+    {
+      "id": 30,
+      "name": "Conservação/Limpeza"
+    },
+    {
+      "id": 17,
+      "name": "Controle de Qualidade"
+    },
+    {
+      "id": 31,
+      "name": "Diretoria"
+    },
+    {
+      "id": 16,
+      "name": "Esmaltação/Loucas"
+    },
+    {
+      "id": 18,
+      "name": "Esmalte"
+    },
+    {
+      "id": 22,
+      "name": "Expedição"
+    },
+    {
+      "id": 40,
+      "name": "Ferramentaria"
+    },
+    {
+      "id": 6,
+      "name": "Financeiro"
+    },
+    {
+      "id": 5,
+      "name": "Forno"
+    },
+    {
+      "id": 9,
+      "name": "Fundição/louças"
+    },
+    {
+      "id": 2,
+      "name": "Gerencia da Produção"
+    },
+    {
+      "id": 14,
+      "name": "Inspeção de Bacias"
+    },
+    {
+      "id": 12,
+      "name": "Inspeção de Louças"
+    },
+    {
+      "id": 13,
+      "name": "Inspeção de Peças Pequenas"
+    },
+    {
+      "id": 3,
+      "name": "Laboratório"
+    },
+    {
+      "id": 8,
+      "name": "Louças Sanitárias"
+    },
+    {
+      "id": 29,
+      "name": "Manutenção"
+    },
+    {
+      "id": 11,
+      "name": "Massa/Esboço"
+    },
+    {
+      "id": 10,
+      "name": "Modelagem"
+    },
+    {
+      "id": 25,
+      "name": "Montagem Mecanismos/Embalagem"
+    },
+    {
+      "id": 27,
+      "name": "PCP - Planejamento e Controle de Produção"
+    },
+    {
+      "id": 19,
+      "name": "PDS - Planejamento e Desenvolvimento "
+    },
+    {
+      "id": 15,
+      "name": "Portaria"
+    },
+    {
+      "id": 28,
+      "name": "Prep. Massa/Esmalte "
+    },
+    {
+      "id": 4,
+      "name": "Produção Geral"
+    },
+    {
+      "id": 38,
+      "name": "Quebra de Moldes"
+    },
+    {
+      "id": 7,
+      "name": "Recursos Humanos"
+    },
+    {
+      "id": 32,
+      "name": "Segurança do Trabalho "
+    },
+    {
+      "id": 33,
+      "name": "Suprimentos/Compras "
+    },
+    {
+      "id": 39,
+      "name": "Tecnologia da Informação"
+    },
+    {
+      "id": 34,
+      "name": "Transporte"
+    },
+    {
+      "id": 35,
+      "name": "Transporte Urbano"
+    },
+    {
+      "id": 24,
+      "name": "Usinagem/Torno"
+    }
+  ],
+  "employees": [
+    {
+      "id": 202,
+      "name": "ABADIO ANTONIO DA SILVA GABRIEL",
+      "barcode": "843",
+      "department_id": {
+        "id": 10,
+        "name": "Modelagem"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 160,
+      "name": "ADEGENARIO FIDELES DA SILVA",
+      "barcode": "757",
+      "department_id": {
+        "id": 29,
+        "name": "Manutenção"
+      },
+      "job_title": "Soldador"
+    },
+    {
+      "id": 101,
+      "name": "ADEILSON SOUSA",
+      "barcode": "459",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor peças pequenas (Ceram)"
+    },
+    {
+      "id": 63,
+      "name": "ADELIA APARECIDA GOMES",
+      "barcode": "186",
+      "department_id": {
+        "id": 8,
+        "name": "Louças Sanitárias"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 64,
+      "name": "ADEMILSON ROSA DOS SANTOS",
+      "barcode": "187",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 65,
+      "name": "ADENIVALDO FERREIRA DA SILVA",
+      "barcode": "189",
+      "department_id": {
+        "id": 22,
+        "name": "Expedição"
+      },
+      "job_title": "Auxiliar de Expedição II"
+    },
+    {
+      "id": 6,
+      "name": "ADILSON RAMOS",
+      "barcode": "45",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Fundidor peças pequenas (Ceram)"
+    },
+    {
+      "id": 7,
+      "name": "ADLET GUILLOME",
+      "barcode": "46",
+      "department_id": {
+        "id": 8,
+        "name": "Louças Sanitárias"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 146,
+      "name": "ADRIANO SOUSA E SILVA",
+      "barcode": "711",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Operador de Empilhadeira"
+    },
+    {
+      "id": 62,
+      "name": "ADÃO XAVIER DE CARVALHO",
+      "barcode": "185",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 214,
+      "name": "AILTON ANTONIO DA SILVA JUNIOR",
+      "barcode": "863",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 76,
+      "name": "ALESSANDRO DE PAULA RODRIGUES",
+      "barcode": "270",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Operador de Maquina II"
+    },
+    {
+      "id": 68,
+      "name": "ALEXANDRE BAPTISTA ROCHA",
+      "barcode": "239",
+      "department_id": {
+        "id": 16,
+        "name": "Esmaltação/Loucas"
+      },
+      "job_title": "Esmaltador"
+    },
+    {
+      "id": 113,
+      "name": "ALEXANDRE BARBOSA DE ARAUJO",
+      "barcode": "511",
+      "department_id": {
+        "id": 4,
+        "name": "Produção Geral"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 227,
+      "name": "ALEXANDRE DO NASCIMENTO",
+      "barcode": "876",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 8,
+      "name": "ALEXANDRE HENRIQUE DOS SANTOS",
+      "barcode": "50",
+      "department_id": {
+        "id": 14,
+        "name": "Inspeção de Bacias"
+      },
+      "job_title": "Fundidor peças pequenas (Ceram)"
+    },
+    {
+      "id": 158,
+      "name": "ALEXSANDER CORREIA DA SILVA FERREIRA",
+      "barcode": "750",
+      "department_id": {
+        "id": 16,
+        "name": "Esmaltação/Loucas"
+      },
+      "job_title": "Esmaltador (Peças pequenas)"
+    },
+    {
+      "id": 133,
+      "name": "ALYNNI CRISTINA DE FREITAS LEMES",
+      "barcode": "619",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 112,
+      "name": "AMARILDO DONIZETE LOPES",
+      "barcode": "508",
+      "department_id": {
+        "id": 4,
+        "name": "Produção Geral"
+      },
+      "job_title": "Operador de Maquina II "
+    },
+    {
+      "id": 142,
+      "name": "ANA MARIA DE LOURDES MOURA SEVERINO",
+      "barcode": "676",
+      "department_id": {
+        "id": 36,
+        "name": "Comercial"
+      },
+      "job_title": "Auxiliar Administrativo"
+    },
+    {
+      "id": 9,
+      "name": "ANDRE DOS SANTOS",
+      "barcode": "51",
+      "department_id": {
+        "id": 8,
+        "name": "Louças Sanitárias"
+      },
+      "job_title": "Lider de Produção"
+    },
+    {
+      "id": 10,
+      "name": "ANDRE LUIS DA COSTA",
+      "barcode": "52",
+      "department_id": {
+        "id": 15,
+        "name": "Portaria"
+      },
+      "job_title": "Lider de Portaria"
+    },
+    {
+      "id": 11,
+      "name": "ANTONIA CELIA FERREIRA DE FRANCA",
+      "barcode": "53",
+      "department_id": {
+        "id": 8,
+        "name": "Louças Sanitárias"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 12,
+      "name": "ANTONIA ERINALDA VIANA DE FRANCA",
+      "barcode": "54",
+      "department_id": {
+        "id": 8,
+        "name": "Louças Sanitárias"
+      },
+      "job_title": "Lider de Setor"
+    },
+    {
+      "id": 13,
+      "name": "ANTONIO DO NASCIMENTO",
+      "barcode": "56",
+      "department_id": {
+        "id": 8,
+        "name": "Louças Sanitárias"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 150,
+      "name": "ANTONIO VALDENIR TEIXEIRA DE SOUSA",
+      "barcode": "725",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 155,
+      "name": "ARTHUR BATISTA DOS SANTOS",
+      "barcode": "745",
+      "department_id": {
+        "id": 16,
+        "name": "Esmaltação/Loucas"
+      },
+      "job_title": "Esmaltador (Peças pequenas)"
+    },
+    {
+      "id": 226,
+      "name": "ARTUR BORGES E SILVA",
+      "barcode": "875",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 14,
+      "name": "BENTO FERNANDES DA SILVA",
+      "barcode": "60",
+      "department_id": {
+        "id": 19,
+        "name": "PDS - Planejamento e Desenvolvimento "
+      },
+      "job_title": "Matrizeiro (Louças)"
+    },
+    {
+      "id": 132,
+      "name": "BIANCA LEAL VIEIRA  MACIEL",
+      "barcode": "617",
+      "department_id": {
+        "id": 7,
+        "name": "Recursos Humanos"
+      },
+      "job_title": "Aux. Deptº. Pessoal"
+    },
+    {
+      "id": 201,
+      "name": "BRENNO ASSIS BARBANTINI DA SILVA",
+      "barcode": "841",
+      "department_id": {
+        "id": 16,
+        "name": "Esmaltação/Loucas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 169,
+      "name": "BRENO DA SILVA CARVALHO",
+      "barcode": "773",
+      "department_id": {
+        "id": 14,
+        "name": "Inspeção de Bacias"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 204,
+      "name": "BRUNO CORREA DA SILVA",
+      "barcode": "851",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 124,
+      "name": "CALEME OZALVO",
+      "barcode": "586",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 120,
+      "name": "CAMILA PEREIRA DE SOUSA",
+      "barcode": "542",
+      "department_id": {
+        "id": 13,
+        "name": "Inspeção de Peças Pequenas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 183,
+      "name": "CAMILLY VICTORIA MENDES",
+      "barcode": "811",
+      "department_id": {
+        "id": 36,
+        "name": "Comercial"
+      },
+      "job_title": "Aprendiz-Adm."
+    },
+    {
+      "id": 15,
+      "name": "CARLOS CORREIA DOS SANTOS",
+      "barcode": "64",
+      "department_id": {
+        "id": 20,
+        "name": "Acabamento"
+      },
+      "job_title": "Fundidor peças pequenas (Ceram)"
+    },
+    {
+      "id": 1,
+      "name": "CARLOS HENRIQUE MONTEIRO",
+      "barcode": "16",
+      "department_id": {
+        "id": 3,
+        "name": "Laboratório"
+      },
+      "job_title": "GERENTE TECNICO"
+    },
+    {
+      "id": 164,
+      "name": "CARLOS HENRIQUE SILVA PEREIRA",
+      "barcode": "764",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 5,
+      "name": "CAROLINE DE OLIVEIRA JERONIMO",
+      "barcode": "39",
+      "department_id": {
+        "id": 7,
+        "name": "Recursos Humanos"
+      },
+      "job_title": "Analista Recursos Humanos"
+    },
+    {
+      "id": 194,
+      "name": "CAROLINE MOREIRA FERREIRA",
+      "barcode": "834",
+      "department_id": {
+        "id": 7,
+        "name": "Recursos Humanos"
+      },
+      "job_title": "Aprendiz-Adm."
+    },
+    {
+      "id": 130,
+      "name": "CELIO BATISTA DE CARVALHO JUNIOR",
+      "barcode": "610",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Operador de Maquina II "
+    },
+    {
+      "id": 180,
+      "name": "CHARLES LIMA FERREIRA",
+      "barcode": "804",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 16,
+      "name": "CLAUDENIR FAUSTO ARAUJO",
+      "barcode": "71",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Operador de Maquina III"
+    },
+    {
+      "id": 17,
+      "name": "CLEBIO LUIZ PAIS DA SILVA",
+      "barcode": "72",
+      "department_id": {
+        "id": 23,
+        "name": "Almoxarifado"
+      },
+      "job_title": "Auxiliar de Expedição I"
+    },
+    {
+      "id": 70,
+      "name": "CLEBSON OLIVEIRA NASCIMENTO",
+      "barcode": "246",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor peças pequenas (Ceram)"
+    },
+    {
+      "id": 186,
+      "name": "CLEMERSON DE ALMEIDA PRATA",
+      "barcode": "820",
+      "department_id": {
+        "id": 30,
+        "name": "Conservação/Limpeza"
+      },
+      "job_title": "Serviços Gerais - Manutenção Indl"
+    },
+    {
+      "id": 18,
+      "name": "CRISTIANO BEZERRA DE SANTANA",
+      "barcode": "73",
+      "department_id": {
+        "id": 24,
+        "name": "Usinagem/Torno"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 19,
+      "name": "DALZIRIA DA SILVA LIMA",
+      "barcode": "74",
+      "department_id": {
+        "id": 20,
+        "name": "Acabamento"
+      },
+      "job_title": "Fundidor peças pequenas (Ceram)"
+    },
+    {
+      "id": 99,
+      "name": "DANIEL VICENTE DIAS TOVO",
+      "barcode": "450",
+      "department_id": {
+        "id": 10,
+        "name": "Modelagem"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 223,
+      "name": "DANILO DA SILVA NEHME",
+      "barcode": "872",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Operador de Empilhadeira"
+    },
+    {
+      "id": 154,
+      "name": "DANILO SILVA GENEROSO",
+      "barcode": "744",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Operador de Maquina II"
+    },
+    {
+      "id": 80,
+      "name": "DAYANE CHRISTINA DE JESUS GONÇALVES",
+      "barcode": "326",
+      "department_id": {
+        "id": 36,
+        "name": "Comercial"
+      },
+      "job_title": "Analista Comercial Junior"
+    },
+    {
+      "id": 79,
+      "name": "DECIO ANTONIO DE AVILA",
+      "barcode": "297",
+      "department_id": {
+        "id": 1,
+        "name": "Administração"
+      },
+      "job_title": "Controller(Contador)"
+    },
+    {
+      "id": 148,
+      "name": "DEIVISON CESAR DE OLIVEIRA",
+      "barcode": "713",
+      "department_id": {
+        "id": 10,
+        "name": "Modelagem"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 106,
+      "name": "DENIS FABIANO INACIO DOS SANTOS",
+      "barcode": "473",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 98,
+      "name": "DERICK LOUGAN DE SOUSA SANTOS",
+      "barcode": "444",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 190,
+      "name": "DHOMINE ALVES ",
+      "barcode": "828",
+      "department_id": {
+        "id": 10,
+        "name": "Modelagem"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 126,
+      "name": "DIEGO MARIANO DA SILVA",
+      "barcode": "589",
+      "department_id": {
+        "id": 15,
+        "name": "Portaria"
+      },
+      "job_title": "Porteiro"
+    },
+    {
+      "id": 224,
+      "name": "DIESLEY MARQUES DA SILVA",
+      "barcode": "873",
+      "department_id": {
+        "id": 14,
+        "name": "Inspeção de Bacias"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 94,
+      "name": "DORILENE DA COSTA DE MORAIS",
+      "barcode": "422",
+      "department_id": {
+        "id": 13,
+        "name": "Inspeção de Peças Pequenas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 20,
+      "name": "DORVACY FARIAS FERREIRA",
+      "barcode": "78",
+      "department_id": {
+        "id": 18,
+        "name": "Esmalte"
+      },
+      "job_title": "Esmaltador (Peças pequenas)"
+    },
+    {
+      "id": 110,
+      "name": "DOUGLAS BENTO DA COSTA",
+      "barcode": "506",
+      "department_id": {
+        "id": 36,
+        "name": "Comercial"
+      },
+      "job_title": "Coordenador de Suprimentos"
+    },
+    {
+      "id": 21,
+      "name": "DURVAL FERREIRA DE CARVALHO",
+      "barcode": "81",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 209,
+      "name": "EDER DANIEL RIBEIRO DA SILVA",
+      "barcode": "857",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 22,
+      "name": "EDILEUSA DE JESUS",
+      "barcode": "83",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 23,
+      "name": "EDJALMA RODRIGUES OLIVEIRA",
+      "barcode": "85",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Lider de Setor"
+    },
+    {
+      "id": 171,
+      "name": "EDMILSON FONSECA OLIVEIRA",
+      "barcode": "777",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Serviços Gerais - Manutenção Indl"
+    },
+    {
+      "id": 109,
+      "name": "EDNA MARIA BATISTA",
+      "barcode": "503",
+      "department_id": {
+        "id": 30,
+        "name": "Conservação/Limpeza"
+      },
+      "job_title": "Aux. Conservação/Limpeza "
+    },
+    {
+      "id": 108,
+      "name": "ELSIONE BORGES DE OLIVEIRA",
+      "barcode": "501",
+      "department_id": {
+        "id": 38,
+        "name": "Quebra de Moldes"
+      },
+      "job_title": "Ajudante de Produção"
+    },
+    {
+      "id": 91,
+      "name": "ERIKA LOPES DOS SANTOS",
+      "barcode": "408",
+      "department_id": {
+        "id": 13,
+        "name": "Inspeção de Peças Pequenas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 78,
+      "name": "ERINALDO DOS SANTOS",
+      "barcode": "286",
+      "department_id": {
+        "id": 30,
+        "name": "Conservação/Limpeza"
+      },
+      "job_title": "Jardineiro"
+    },
+    {
+      "id": 24,
+      "name": "FABIANO EUSTAQUIO DA LUZ",
+      "barcode": "90",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor peças pequenas (Ceram)"
+    },
+    {
+      "id": 125,
+      "name": "FABIANO GROTA JACUNDINO",
+      "barcode": "587",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Operador de Maquina II "
+    },
+    {
+      "id": 2,
+      "name": "FABIANO PEREIRA LIMA",
+      "barcode": "20",
+      "department_id": {
+        "id": 2,
+        "name": "Gerencia da Produção"
+      },
+      "job_title": "Gerente de Produtos (Louças)"
+    },
+    {
+      "id": 4,
+      "name": "FABIOLA MARCIA FERNANDES DA SILVA",
+      "barcode": "24",
+      "department_id": {
+        "id": 6,
+        "name": "Financeiro"
+      },
+      "job_title": "Assistente Financeiro Pleno"
+    },
+    {
+      "id": 25,
+      "name": "FABRICIO GALDEL SANTOS GOMES",
+      "barcode": "91",
+      "department_id": {
+        "id": 4,
+        "name": "Produção Geral"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 221,
+      "name": "FABRICIO MENDES DOS SANTOS SOARES",
+      "barcode": "870",
+      "department_id": {
+        "id": 14,
+        "name": "Inspeção de Bacias"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 152,
+      "name": "FELIPE GONÇALVES",
+      "barcode": "737",
+      "department_id": {
+        "id": 10,
+        "name": "Modelagem"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 66,
+      "name": "FLAVIO ROBERTO BOSCOLO",
+      "barcode": "211",
+      "department_id": {
+        "id": 31,
+        "name": "Diretoria"
+      },
+      "job_title": "DIRETOR"
+    },
+    {
+      "id": 81,
+      "name": "FRANCISCO DA SILVA GAIDO",
+      "barcode": "330",
+      "department_id": {
+        "id": 22,
+        "name": "Expedição"
+      },
+      "job_title": "Auxiliar de Expediçao"
+    },
+    {
+      "id": 26,
+      "name": "FRANCISCO DE ASSIS COSTA",
+      "barcode": "93",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Ajudante de Produção IIII"
+    },
+    {
+      "id": 138,
+      "name": "GABRIEL EDUARDO ARRUDA FERNANDES",
+      "barcode": "663",
+      "department_id": {
+        "id": 39,
+        "name": "Tecnologia da Informação"
+      },
+      "job_title": "Analista de Sistema"
+    },
+    {
+      "id": 82,
+      "name": "GARDONE CONCEIÇÃO DA SILVA",
+      "barcode": "337",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor peças pequenas (Ceram)"
+    },
+    {
+      "id": 87,
+      "name": "GILVAN SILVA DOS SANTOS",
+      "barcode": "362",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Operador de Maquina II "
+    },
+    {
+      "id": 165,
+      "name": "GIOVANNI RENATO VIEIRA",
+      "barcode": "765",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Operador de Maquina II"
+    },
+    {
+      "id": 27,
+      "name": "GUILHERME ALVES FERREIRA",
+      "barcode": "98",
+      "department_id": {
+        "id": 8,
+        "name": "Louças Sanitárias"
+      },
+      "job_title": "Lider de Setor"
+    },
+    {
+      "id": 28,
+      "name": "GUILHERME ALVES FONSECA",
+      "barcode": "99",
+      "department_id": {
+        "id": 22,
+        "name": "Expedição"
+      },
+      "job_title": "Supervisor de Expedição"
+    },
+    {
+      "id": 219,
+      "name": "GUSTAVO GIL SALES",
+      "barcode": "868",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 175,
+      "name": "GUSTAVO VENANCIO COSTA",
+      "barcode": "798",
+      "department_id": {
+        "id": 25,
+        "name": "Montagem Mecanismos/Embalagem"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 144,
+      "name": "GUSTAVO VINICIUS DA SILVA SOUZA",
+      "barcode": "690",
+      "department_id": {
+        "id": 16,
+        "name": "Esmaltação/Loucas"
+      },
+      "job_title": "Esmaltador (Peças pequenas)"
+    },
+    {
+      "id": 134,
+      "name": "HELIO JOSE RIBELA",
+      "barcode": "630",
+      "department_id": {
+        "id": 22,
+        "name": "Expedição"
+      },
+      "job_title": "Auxiliar de Expediçao"
+    },
+    {
+      "id": 29,
+      "name": "HELOISA APARECIDA BORGES BAHIA",
+      "barcode": "102",
+      "department_id": {
+        "id": 3,
+        "name": "Laboratório"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 153,
+      "name": "HELYAN DE PAULA MENZOTTI",
+      "barcode": "741",
+      "department_id": {
+        "id": 3,
+        "name": "Laboratório"
+      },
+      "job_title": "Auxiliar de Laboratorio"
+    },
+    {
+      "id": 30,
+      "name": "HUMBERTO LUIZ MONTANDON",
+      "barcode": "103",
+      "department_id": {
+        "id": 15,
+        "name": "Portaria"
+      },
+      "job_title": "Porteiro"
+    },
+    {
+      "id": 88,
+      "name": "IAGO MENEZES FLORENCIO",
+      "barcode": "368",
+      "department_id": {
+        "id": 36,
+        "name": "Comercial"
+      },
+      "job_title": "ANALISTA COMERCIAL"
+    },
+    {
+      "id": 173,
+      "name": "IASMIM DA SILVA COSTA",
+      "barcode": "794",
+      "department_id": {
+        "id": 33,
+        "name": "Suprimentos/Compras "
+      },
+      "job_title": "Aprendiz-Adm."
+    },
+    {
+      "id": 135,
+      "name": "IDGLAN DA COSTA OLIVEIRA",
+      "barcode": "647",
+      "department_id": {
+        "id": 16,
+        "name": "Esmaltação/Loucas"
+      },
+      "job_title": "Esmaltador"
+    },
+    {
+      "id": 31,
+      "name": "IVANA DIRLENE DA SILVA",
+      "barcode": "107",
+      "department_id": {
+        "id": 13,
+        "name": "Inspeção de Peças Pequenas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 32,
+      "name": "JACIRON ALVES DOS SANTOS",
+      "barcode": "110",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 228,
+      "name": "JAILSON AURELIANO DOS SANTOS",
+      "barcode": "877",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 118,
+      "name": "JAIRO FERNANDO DE ARAÚJO SILVA",
+      "barcode": "528",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 33,
+      "name": "JOAO ALBERTO COSTA DE OLIVEIRA",
+      "barcode": "113",
+      "department_id": {
+        "id": 27,
+        "name": "PCP - Planejamento e Controle de Produção"
+      },
+      "job_title": "Assistente de PCP"
+    },
+    {
+      "id": 167,
+      "name": "JOAO ANTONIO ALVES DA SILVA",
+      "barcode": "768",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Operador de Maquina II"
+    },
+    {
+      "id": 84,
+      "name": "JOAO BATISTA CONCEIÇÃO OLIVEIRA",
+      "barcode": "345",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 72,
+      "name": "JOAO BATISTA RODRIGUES DA SILVA",
+      "barcode": "251",
+      "department_id": {
+        "id": 34,
+        "name": "Transporte"
+      },
+      "job_title": "Motorista"
+    },
+    {
+      "id": 162,
+      "name": "JOAO CARLOS DA SILVA",
+      "barcode": "760",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 90,
+      "name": "JOAO CARLOS FERREIRA DE ASSIS",
+      "barcode": "407",
+      "department_id": {
+        "id": 22,
+        "name": "Expedição"
+      },
+      "job_title": "Almoxarife"
+    },
+    {
+      "id": 198,
+      "name": "JOAQUIM AFONSO OLIVEIRA DE PAULA ",
+      "barcode": "838",
+      "department_id": {
+        "id": 32,
+        "name": "Segurança do Trabalho "
+      },
+      "job_title": "Aprendiz-Adm."
+    },
+    {
+      "id": 34,
+      "name": "JOEL BATISTA DOS SANTOS",
+      "barcode": "115",
+      "department_id": {
+        "id": 4,
+        "name": "Produção Geral"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 156,
+      "name": "JOEL CONCEIÇÃO DOS SANTOS FILHO",
+      "barcode": "746",
+      "department_id": {
+        "id": 40,
+        "name": "Ferramentaria"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 122,
+      "name": "JOERLISSON DE MORAIS MARTINS",
+      "barcode": "553",
+      "department_id": {
+        "id": 16,
+        "name": "Esmaltação/Loucas"
+      },
+      "job_title": "Esmaltador"
+    },
+    {
+      "id": 129,
+      "name": "JONAS DA SILVA SANTOS",
+      "barcode": "606",
+      "department_id": {
+        "id": 29,
+        "name": "Manutenção"
+      },
+      "job_title": "Soldador"
+    },
+    {
+      "id": 137,
+      "name": "JOSE ALEXANDER DIAZ MEZA",
+      "barcode": "657",
+      "department_id": {
+        "id": 22,
+        "name": "Expedição"
+      },
+      "job_title": "Auxiliar de Expediçao"
+    },
+    {
+      "id": 192,
+      "name": "JOSE CLEBSON DOS SANTOS ",
+      "barcode": "832",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 97,
+      "name": "JOSE DE RIBAMAR DOS SANTOS",
+      "barcode": "434",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 67,
+      "name": "JOSE ERISVAN DE FRANCA TORRES",
+      "barcode": "221",
+      "department_id": {
+        "id": 17,
+        "name": "Controle de Qualidade"
+      },
+      "job_title": "Ajudante de Produção IIII"
+    },
+    {
+      "id": 187,
+      "name": "JOSE GABRIEL DE SOUSA SILVA",
+      "barcode": "823",
+      "department_id": {
+        "id": 14,
+        "name": "Inspeção de Bacias"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 35,
+      "name": "JOSE HUMBERTO DA SILVA",
+      "barcode": "119",
+      "department_id": {
+        "id": 3,
+        "name": "Laboratório"
+      },
+      "job_title": "Assistente de Laboratorio"
+    },
+    {
+      "id": 111,
+      "name": "JOSE MARIA ELIAS DE QUEIROZ",
+      "barcode": "507",
+      "department_id": {
+        "id": 15,
+        "name": "Portaria"
+      },
+      "job_title": "Porteiro"
+    },
+    {
+      "id": 149,
+      "name": "JOSE OVIDIO DA SILVA ROMAO",
+      "barcode": "722",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 104,
+      "name": "JOSE RODRIGUES TAVARES",
+      "barcode": "466",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Lider de Area (Ceramica)"
+    },
+    {
+      "id": 36,
+      "name": "JOSE SEVERINO DOS SANTOS",
+      "barcode": "121",
+      "department_id": {
+        "id": 8,
+        "name": "Louças Sanitárias"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 102,
+      "name": "JOÃO BATISTA DOS SANTOS",
+      "barcode": "460",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Operador de Maquina II "
+    },
+    {
+      "id": 85,
+      "name": "JUAN CARLOS DOS SANTOS",
+      "barcode": "348",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Operador de Maquina II "
+    },
+    {
+      "id": 140,
+      "name": "JUCELINO MARTINS FRANCISCO",
+      "barcode": "665",
+      "department_id": {
+        "id": 14,
+        "name": "Inspeção de Bacias"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 159,
+      "name": "JULIO CESAR MARTOS RODRIGUES",
+      "barcode": "752",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Op.Maquina I"
+    },
+    {
+      "id": 37,
+      "name": "JULIO CESAR PEREIRA",
+      "barcode": "122",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 157,
+      "name": "JULIO CESAR RIBEIRO COSTA",
+      "barcode": "748",
+      "department_id": {
+        "id": 29,
+        "name": "Manutenção"
+      },
+      "job_title": "Eletricista de Manutençao"
+    },
+    {
+      "id": 114,
+      "name": "KELLY FABIANA LUIS",
+      "barcode": "513",
+      "department_id": {
+        "id": 4,
+        "name": "Produção Geral"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 174,
+      "name": "KETHELEN LUCIA GONÇALVES",
+      "barcode": "795",
+      "department_id": {
+        "id": 7,
+        "name": "Recursos Humanos"
+      },
+      "job_title": "Aprendiz-Adm."
+    },
+    {
+      "id": 139,
+      "name": "LAZARO BRUNO FERREIRA DA ROCHA",
+      "barcode": "664",
+      "department_id": {
+        "id": 14,
+        "name": "Inspeção de Bacias"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 89,
+      "name": "LEONARDO BITENCOURT SOARES",
+      "barcode": "400",
+      "department_id": {
+        "id": 16,
+        "name": "Esmaltação/Loucas"
+      },
+      "job_title": "Esmaltador (Peças pequenas)"
+    },
+    {
+      "id": 38,
+      "name": "LEONARDO FERREIRA DOS SANTOS",
+      "barcode": "125",
+      "department_id": {
+        "id": 10,
+        "name": "Modelagem"
+      },
+      "job_title": "Lider de Setor"
+    },
+    {
+      "id": 69,
+      "name": "LINDOMAR PEREIRA DA SILVA",
+      "barcode": "243",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 170,
+      "name": "LOGUINHO HUMBERTO DA SILVA",
+      "barcode": "774",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Operador de Maquina II"
+    },
+    {
+      "id": 86,
+      "name": "LOURINALDO JUNIO MAXIMIANO PEREIRA",
+      "barcode": "360",
+      "department_id": {
+        "id": 19,
+        "name": "PDS - Planejamento e Desenvolvimento "
+      },
+      "job_title": "Assistente Matrizaria"
+    },
+    {
+      "id": 189,
+      "name": "LUCAS DE OLIVEIRA LIMA ",
+      "barcode": "826",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 151,
+      "name": "LUCAS DE SOUSA SOARES SILVA",
+      "barcode": "736",
+      "department_id": {
+        "id": 13,
+        "name": "Inspeção de Peças Pequenas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 216,
+      "name": "LUCAS MARTINS GONÇALVES",
+      "barcode": "865",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 193,
+      "name": "LUCAS MATIAS DOS SANTOS",
+      "barcode": "833",
+      "department_id": {
+        "id": 14,
+        "name": "Inspeção de Bacias"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 127,
+      "name": "LUCIANA BATISTA DA SILVA",
+      "barcode": "590",
+      "department_id": {
+        "id": 30,
+        "name": "Conservação/Limpeza"
+      },
+      "job_title": "Aux. Conservação/Limpeza "
+    },
+    {
+      "id": 93,
+      "name": "LUCIANA INACIA DA SILVA",
+      "barcode": "415",
+      "department_id": {
+        "id": 13,
+        "name": "Inspeção de Peças Pequenas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 103,
+      "name": "LUDMILA BEATRIZ NUNES",
+      "barcode": "462",
+      "department_id": {
+        "id": 6,
+        "name": "Financeiro"
+      },
+      "job_title": "Auxiliar Administrativo"
+    },
+    {
+      "id": 161,
+      "name": "LUIS ALBERTO BENITEZ ARCILA",
+      "barcode": "759",
+      "department_id": {
+        "id": 22,
+        "name": "Expedição"
+      },
+      "job_title": "Auxiliar de Expediçao"
+    },
+    {
+      "id": 39,
+      "name": "LUIS EIMAR DA CRUZ",
+      "barcode": "129",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Ajudante de Produção IIII"
+    },
+    {
+      "id": 195,
+      "name": "LUIS FELIPE DE SOUSA MOURA",
+      "barcode": "835",
+      "department_id": {
+        "id": 32,
+        "name": "Segurança do Trabalho "
+      },
+      "job_title": "Aux. Segurança Trabalho"
+    },
+    {
+      "id": 205,
+      "name": "LUIS GUSTAVO FELIX NOBRE DE OLIVEIRA",
+      "barcode": "852",
+      "department_id": {
+        "id": 16,
+        "name": "Esmaltação/Loucas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 71,
+      "name": "LUIZ CARLOS TEIXEIRA DA SILVA NASCIMENTO",
+      "barcode": "248",
+      "department_id": {
+        "id": 32,
+        "name": "Segurança do Trabalho "
+      },
+      "job_title": "Tecnico Seg. trabalho"
+    },
+    {
+      "id": 121,
+      "name": "MACIEL DOS SANTOS ARAUJO",
+      "barcode": "552",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 123,
+      "name": "MANOEL MESSIAS DOS SANTOS",
+      "barcode": "562",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 179,
+      "name": "MARCELO DA SILVA",
+      "barcode": "803",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 185,
+      "name": "MARCELO NASCIMENTO",
+      "barcode": "814",
+      "department_id": {
+        "id": 29,
+        "name": "Manutenção"
+      },
+      "job_title": "Serviços Gerais - Manutenção Indl"
+    },
+    {
+      "id": 163,
+      "name": "MARCIA AUGUSTA GONTIJO DA SILVA",
+      "barcode": "763",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 40,
+      "name": "MARCIA HELENA CANDIDO",
+      "barcode": "133",
+      "department_id": {
+        "id": 13,
+        "name": "Inspeção de Peças Pequenas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 41,
+      "name": "MARCIO MARQUES DA SILVA",
+      "barcode": "135",
+      "department_id": {
+        "id": 29,
+        "name": "Manutenção"
+      },
+      "job_title": "Lider de Manutenção"
+    },
+    {
+      "id": 96,
+      "name": "MARCO ANTONIO ARDUINI",
+      "barcode": "426",
+      "department_id": {
+        "id": 10,
+        "name": "Modelagem"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 83,
+      "name": "MARCO TULIO FIRMINO DA SILVA",
+      "barcode": "344",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 131,
+      "name": "MARCOS JULIO LOPES",
+      "barcode": "612",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor peças pequenas (Ceram)"
+    },
+    {
+      "id": 147,
+      "name": "MARIA DE FATIMA GOMES DE SALES",
+      "barcode": "712",
+      "department_id": {
+        "id": 13,
+        "name": "Inspeção de Peças Pequenas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 42,
+      "name": "MARIA DO SOCORRO CRISPIN BARRETO DA SILV",
+      "barcode": "137",
+      "department_id": {
+        "id": 8,
+        "name": "Louças Sanitárias"
+      },
+      "job_title": "Fundidor peças pequenas (Ceram)"
+    },
+    {
+      "id": 75,
+      "name": "MARIA EDUARDA RODOVALHO COUTINHO",
+      "barcode": "257",
+      "department_id": {
+        "id": 6,
+        "name": "Financeiro"
+      },
+      "job_title": "Assistente Financeiro Junior"
+    },
+    {
+      "id": 43,
+      "name": "MARIA NILZA VIANA SANTOS",
+      "barcode": "139",
+      "department_id": {
+        "id": 13,
+        "name": "Inspeção de Peças Pequenas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 44,
+      "name": "MARIA RAIMUNDA GONCALVES DA SILVA",
+      "barcode": "140",
+      "department_id": {
+        "id": 18,
+        "name": "Esmalte"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 128,
+      "name": "MARIA SILVA LIMA FERREIRA",
+      "barcode": "603",
+      "department_id": {
+        "id": 13,
+        "name": "Inspeção de Peças Pequenas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 45,
+      "name": "MARILDA ANTONIA DOS REIS VALERIO",
+      "barcode": "141",
+      "department_id": {
+        "id": 13,
+        "name": "Inspeção de Peças Pequenas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 46,
+      "name": "MARILDA DE BRITO RODRIGUES",
+      "barcode": "142",
+      "department_id": {
+        "id": 13,
+        "name": "Inspeção de Peças Pequenas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 47,
+      "name": "MARIZA MARIA MARTINS DE ARAUJO",
+      "barcode": "144",
+      "department_id": {
+        "id": 17,
+        "name": "Controle de Qualidade"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 100,
+      "name": "MARLON GLEISON DA CONCEIÇÃO SILVA",
+      "barcode": "451",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor peças pequenas (Ceram)"
+    },
+    {
+      "id": 218,
+      "name": "MATHEUS HENRIQUE FERREIRA SILVA",
+      "barcode": "867",
+      "department_id": {
+        "id": 14,
+        "name": "Inspeção de Bacias"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 143,
+      "name": "MATHEUS LINCOLN DA COSTA ALVES",
+      "barcode": "678",
+      "department_id": {
+        "id": 25,
+        "name": "Montagem Mecanismos/Embalagem"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 119,
+      "name": "MATHEUS RAMOS FONSECA",
+      "barcode": "540",
+      "department_id": {
+        "id": 23,
+        "name": "Almoxarifado"
+      },
+      "job_title": "Almoxarife"
+    },
+    {
+      "id": 200,
+      "name": "MAXWEL LUCAS SANTOS SOUZA",
+      "barcode": "840",
+      "department_id": {
+        "id": 32,
+        "name": "Segurança do Trabalho "
+      },
+      "job_title": "Aprendiz-Adm."
+    },
+    {
+      "id": 178,
+      "name": "MIKAEL EVERSON SILVA DE OLIVEIRA",
+      "barcode": "802",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 48,
+      "name": "MILTON AUGUSTO DA SILVA",
+      "barcode": "145",
+      "department_id": {
+        "id": 8,
+        "name": "Louças Sanitárias"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 117,
+      "name": "MISAEL FONTINELE DA SILVA SOUSA",
+      "barcode": "522",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 222,
+      "name": "NAYARA CRISTINA DOS SANTOS RICARDO",
+      "barcode": "871",
+      "department_id": {
+        "id": 7,
+        "name": "Recursos Humanos"
+      },
+      "job_title": "Analista de Dep.Pessoal"
+    },
+    {
+      "id": 116,
+      "name": "NICOLAS MARTINS SILVA",
+      "barcode": "518",
+      "department_id": {
+        "id": 22,
+        "name": "Expedição"
+      },
+      "job_title": "Conferente"
+    },
+    {
+      "id": 188,
+      "name": "NILSON OLIVEIRA NEVES",
+      "barcode": "825",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 49,
+      "name": "NILTON CESAR ALVES BARBOSA",
+      "barcode": "149",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Fundidor peças pequenas (Ceram)"
+    },
+    {
+      "id": 215,
+      "name": "OSMAR RIGOLETO DOURADO",
+      "barcode": "864",
+      "department_id": {
+        "id": 22,
+        "name": "Expedição"
+      },
+      "job_title": "Auxiliar de Expediçao"
+    },
+    {
+      "id": 50,
+      "name": "OSVALDO LAZARO SALERNO",
+      "barcode": "151",
+      "department_id": {
+        "id": 8,
+        "name": "Louças Sanitárias"
+      },
+      "job_title": "Laboratorista "
+    },
+    {
+      "id": 199,
+      "name": "OTAVIO HENRIQUE PIRES DE SOUSA ",
+      "barcode": "839",
+      "department_id": {
+        "id": 22,
+        "name": "Expedição"
+      },
+      "job_title": "Aprendiz-Adm."
+    },
+    {
+      "id": 51,
+      "name": "PAULO BRAGAS MACIEL",
+      "barcode": "152",
+      "department_id": {
+        "id": 16,
+        "name": "Esmaltação/Loucas"
+      },
+      "job_title": "Esmaltador"
+    },
+    {
+      "id": 92,
+      "name": "PAULO CEZAR COELHO",
+      "barcode": "414",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Operador de Empilhadeira"
+    },
+    {
+      "id": 206,
+      "name": "PAULO HENRIQUE MARIANO VIEIRA",
+      "barcode": "854",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 73,
+      "name": "PAULO HENRIQUE MATTOS BARTONELLI",
+      "barcode": "252",
+      "department_id": {
+        "id": 33,
+        "name": "Suprimentos/Compras "
+      },
+      "job_title": "Supervisor Comercial"
+    },
+    {
+      "id": 176,
+      "name": "PAULO LUCIANO DA SILVA",
+      "barcode": "799",
+      "department_id": {
+        "id": 22,
+        "name": "Expedição"
+      },
+      "job_title": "Auxiliar de Expediçao"
+    },
+    {
+      "id": 77,
+      "name": "PAULO RICARDO PEREIRA DE SOUSA",
+      "barcode": "272",
+      "department_id": {
+        "id": 10,
+        "name": "Modelagem"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 207,
+      "name": "PAULO ROBERTO DA SILVA SILVERIO",
+      "barcode": "855",
+      "department_id": {
+        "id": 27,
+        "name": "PCP - Planejamento e Controle de Produção"
+      },
+      "job_title": "Auxilar de PCP"
+    },
+    {
+      "id": 136,
+      "name": "PEDRO HENRIQUE DA SILVA FLABILIO",
+      "barcode": "653",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 52,
+      "name": "RAILSON JOSE DA SILVA",
+      "barcode": "156",
+      "department_id": {
+        "id": 8,
+        "name": "Louças Sanitárias"
+      },
+      "job_title": "Lider de Setor"
+    },
+    {
+      "id": 105,
+      "name": "RAIMUNDO NONATO MESSIAS DA COSTA",
+      "barcode": "470",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 225,
+      "name": "RAPHAEL COSTA FERNANDES",
+      "barcode": "874",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 203,
+      "name": "RAUL CESAR SERAFIM MANZAN",
+      "barcode": "844",
+      "department_id": {
+        "id": 27,
+        "name": "PCP - Planejamento e Controle de Produção"
+      },
+      "job_title": "Analista de PCP"
+    },
+    {
+      "id": 53,
+      "name": "RICARDO GOMES DE SOUSA",
+      "barcode": "159",
+      "department_id": {
+        "id": 8,
+        "name": "Louças Sanitárias"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 168,
+      "name": "RICHARD MANOEL SOARES TROLESI",
+      "barcode": "769",
+      "department_id": {
+        "id": 39,
+        "name": "Tecnologia da Informação"
+      },
+      "job_title": "Aprendiz-Adm."
+    },
+    {
+      "id": 54,
+      "name": "RITA APARECIDA DE SOUSA",
+      "barcode": "160",
+      "department_id": {
+        "id": 30,
+        "name": "Conservação/Limpeza"
+      },
+      "job_title": "Aux. Conservação/Limpeza "
+    },
+    {
+      "id": 95,
+      "name": "RIVALDO PEREIRA DA SILVA CONCEIÇÃO",
+      "barcode": "425",
+      "department_id": {
+        "id": 17,
+        "name": "Controle de Qualidade"
+      },
+      "job_title": "Esmaltador (Peças pequenas)"
+    },
+    {
+      "id": 184,
+      "name": "RODRIGO DE JESUS BRITO",
+      "barcode": "813",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 212,
+      "name": "RODRIGO SILVA DE DEUS",
+      "barcode": "860",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Op.Maquina I"
+    },
+    {
+      "id": 141,
+      "name": "RODRIGO VERCELONE DE ORNELAS TIMOTEO",
+      "barcode": "671",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Operador de Maquina II "
+    },
+    {
+      "id": 115,
+      "name": "ROMERO BATISTA PEREIRA",
+      "barcode": "517",
+      "department_id": {
+        "id": 29,
+        "name": "Manutenção"
+      },
+      "job_title": "Mecanico de Manutençao I"
+    },
+    {
+      "id": 3,
+      "name": "RONALDO JUNIOR DE CARVALHO",
+      "barcode": "21",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Coordenador"
+    },
+    {
+      "id": 145,
+      "name": "SAMUEL HENRIQUE DONIZETE SILVA",
+      "barcode": "696",
+      "department_id": {
+        "id": 23,
+        "name": "Almoxarifado"
+      },
+      "job_title": "Aux.Almoxarifado"
+    },
+    {
+      "id": 213,
+      "name": "SAMUEL PARREIRA DA SILVA",
+      "barcode": "862",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Op.Maquina I"
+    },
+    {
+      "id": 55,
+      "name": "TACIO LUIZ CAMPELO",
+      "barcode": "168",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Operador de Maquina II "
+    },
+    {
+      "id": 56,
+      "name": "TEREZA CRISTINA FERNANDES",
+      "barcode": "170",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Supervisor de prod.I "
+    },
+    {
+      "id": 197,
+      "name": "THIAGO HENRIQUE COSTA DUTRA",
+      "barcode": "837",
+      "department_id": {
+        "id": 27,
+        "name": "PCP - Planejamento e Controle de Produção"
+      },
+      "job_title": "Aprendiz-Adm."
+    },
+    {
+      "id": 57,
+      "name": "VALDA HELENA DA SILVA",
+      "barcode": "172",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 58,
+      "name": "VALDEIR RODRIGUES DE MACEDO",
+      "barcode": "173",
+      "department_id": {
+        "id": 8,
+        "name": "Louças Sanitárias"
+      },
+      "job_title": "Fundidor (Louças)"
+    },
+    {
+      "id": 59,
+      "name": "VALDIR PEDRO DA SILVA",
+      "barcode": "175",
+      "department_id": {
+        "id": 17,
+        "name": "Controle de Qualidade"
+      },
+      "job_title": "Supervisor Controle Qualidade"
+    },
+    {
+      "id": 211,
+      "name": "VALQUIRIA ROCHA BARBOSA DA CRUZ",
+      "barcode": "859",
+      "department_id": {
+        "id": 13,
+        "name": "Inspeção de Peças Pequenas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 191,
+      "name": "VALTER FERNANDES JUNIOR",
+      "barcode": "831",
+      "department_id": {
+        "id": 14,
+        "name": "Inspeção de Bacias"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 196,
+      "name": "VICTOR DO VALLE DA CONCEIÇÃO",
+      "barcode": "836",
+      "department_id": {
+        "id": 16,
+        "name": "Esmaltação/Loucas"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 177,
+      "name": "VINICIUS AUGUSTO DA CUNHA GONCALVES",
+      "barcode": "800",
+      "department_id": {
+        "id": 25,
+        "name": "Montagem Mecanismos/Embalagem"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 60,
+      "name": "VIRGINIA BEATRIZ BATISTA",
+      "barcode": "178",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 220,
+      "name": "VITOR HUGO ARDUINI MACHADO",
+      "barcode": "869",
+      "department_id": {
+        "id": 26,
+        "name": "Classsificação Visual de Louças"
+      },
+      "job_title": "Ajudante de Produção II "
+    },
+    {
+      "id": 181,
+      "name": "VITOR LUCIO SILVA RIBEIRO ",
+      "barcode": "807",
+      "department_id": {
+        "id": 29,
+        "name": "Manutenção"
+      },
+      "job_title": "Serviços Gerais - Manutenção Indl"
+    },
+    {
+      "id": 217,
+      "name": "VITORIA BEATRIZ CAMPOS",
+      "barcode": "866",
+      "department_id": {
+        "id": 7,
+        "name": "Recursos Humanos"
+      },
+      "job_title": "Aprendiz-Adm."
+    },
+    {
+      "id": 166,
+      "name": "VITORIA HELENA CRUVINEL MATIAS",
+      "barcode": "767",
+      "department_id": {
+        "id": 36,
+        "name": "Comercial"
+      },
+      "job_title": "Assistente Comercial Júnior"
+    },
+    {
+      "id": 210,
+      "name": "VIVIAN NUNES DE OLIVEIRA",
+      "barcode": "858",
+      "department_id": {
+        "id": 6,
+        "name": "Financeiro"
+      },
+      "job_title": "Aprendiz-Adm."
+    },
+    {
+      "id": 107,
+      "name": "WALISSON DE OLIVEIRA",
+      "barcode": "491",
+      "department_id": {
+        "id": 5,
+        "name": "Forno"
+      },
+      "job_title": "Operador de Maquina II "
+    },
+    {
+      "id": 172,
+      "name": "WALTER SOARES DE SOUSA",
+      "barcode": "778",
+      "department_id": {
+        "id": 9,
+        "name": "Fundição/louças"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 182,
+      "name": "WELBER MARCOS SANTOS SOARES",
+      "barcode": "808",
+      "department_id": {
+        "id": 14,
+        "name": "Inspeção de Bacias"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 74,
+      "name": "WELDER DE OLIVEIRA",
+      "barcode": "253",
+      "department_id": {
+        "id": 14,
+        "name": "Inspeção de Bacias"
+      },
+      "job_title": "Ajudante de Produção III "
+    },
+    {
+      "id": 208,
+      "name": "WELLINGTON HENRIQUE CHAVES DOS SANTOS",
+      "barcode": "856",
+      "department_id": {
+        "id": 28,
+        "name": "Prep. Massa/Esmalte "
+      },
+      "job_title": "Operador de Empilhadeira"
+    },
+    {
+      "id": 61,
+      "name": "WESLEI FRANCISCO DOS SANTOS",
+      "barcode": "184",
+      "department_id": {
+        "id": 16,
+        "name": "Esmaltação/Loucas"
+      },
+      "job_title": "Esmaltador"
+    }
+  ],
+  "employee_count": 228,
+  "quality_alert_fields": {
+    "id": {
+      "type": "integer",
+      "string": "ID",
+      "required": false
+    },
+    "display_name": {
+      "type": "char",
+      "string": "Display Name",
+      "required": false
+    },
+    "activity_ids": {
+      "type": "one2many",
+      "string": "Activities",
+      "required": false
+    },
+    "activity_state": {
+      "type": "selection",
+      "string": "Activity State",
+      "required": false
+    },
+    "activity_user_id": {
+      "type": "many2one",
+      "string": "Responsible User",
+      "required": false
+    },
+    "activity_type_id": {
+      "type": "many2one",
+      "string": "Next Activity Type",
+      "required": false
+    },
+    "activity_type_icon": {
+      "type": "char",
+      "string": "Activity Type Icon",
+      "required": false
+    },
+    "activity_date_deadline": {
+      "type": "date",
+      "string": "Next Activity Deadline",
+      "required": false
+    },
+    "my_activity_date_deadline": {
+      "type": "date",
+      "string": "My Activity Deadline",
+      "required": false
+    },
+    "activity_summary": {
+      "type": "char",
+      "string": "Next Activity Summary",
+      "required": false
+    },
+    "activity_exception_decoration": {
+      "type": "selection",
+      "string": "Activity Exception Decoration",
+      "required": false
+    },
+    "activity_exception_icon": {
+      "type": "char",
+      "string": "Icon",
+      "required": false
+    },
+    "activity_plans_ids": {
+      "type": "many2many",
+      "string": "Activity Plans",
+      "required": false
+    },
+    "activity_calendar_event_id": {
+      "type": "many2one",
+      "string": "Next Activity Calendar Event",
+      "required": false
+    },
+    "message_is_follower": {
+      "type": "boolean",
+      "string": "Is Follower",
+      "required": false
+    },
+    "message_follower_ids": {
+      "type": "one2many",
+      "string": "Followers",
+      "required": false
+    },
+    "message_partner_ids": {
+      "type": "many2many",
+      "string": "Followers (Partners)",
+      "required": false
+    },
+    "message_ids": {
+      "type": "one2many",
+      "string": "Messages",
+      "required": false
+    },
+    "has_message": {
+      "type": "boolean",
+      "string": "Has Message",
+      "required": false
+    },
+    "message_needaction": {
+      "type": "boolean",
+      "string": "Action Needed",
+      "required": false
+    },
+    "message_needaction_counter": {
+      "type": "integer",
+      "string": "Number of Actions",
+      "required": false
+    },
+    "message_has_error": {
+      "type": "boolean",
+      "string": "Message Delivery error",
+      "required": false
+    },
+    "message_has_error_counter": {
+      "type": "integer",
+      "string": "Number of errors",
+      "required": false
+    },
+    "message_attachment_count": {
+      "type": "integer",
+      "string": "Attachment Count",
+      "required": false
+    },
+    "rating_ids": {
+      "type": "one2many",
+      "string": "Ratings",
+      "required": false
+    },
+    "website_message_ids": {
+      "type": "one2many",
+      "string": "Website Messages",
+      "required": false
+    },
+    "message_has_sms_error": {
+      "type": "boolean",
+      "string": "SMS Delivery error",
+      "required": false
+    },
+    "email_cc": {
+      "type": "char",
+      "string": "Email cc",
+      "required": false
+    },
+    "name": {
+      "type": "char",
+      "string": "Name",
+      "required": false
+    },
+    "description": {
+      "type": "html",
+      "string": "Description",
+      "required": false
+    },
+    "stage_id": {
+      "type": "many2one",
+      "string": "Stage",
+      "required": false
+    },
+    "company_id": {
+      "type": "many2one",
+      "string": "Company",
+      "required": true
+    },
+    "reason_id": {
+      "type": "many2one",
+      "string": "Root Cause",
+      "required": false
+    },
+    "tag_ids": {
+      "type": "many2many",
+      "string": "Tags",
+      "required": false
+    },
+    "date_assign": {
+      "type": "datetime",
+      "string": "Date Assigned",
+      "required": false
+    },
+    "date_close": {
+      "type": "datetime",
+      "string": "Date Closed",
+      "required": false
+    },
+    "picking_id": {
+      "type": "many2one",
+      "string": "Picking",
+      "required": false
+    },
+    "action_corrective": {
+      "type": "html",
+      "string": "Corrective Action",
+      "required": false
+    },
+    "action_preventive": {
+      "type": "html",
+      "string": "Preventive Action",
+      "required": false
+    },
+    "user_id": {
+      "type": "many2one",
+      "string": "Responsible",
+      "required": false
+    },
+    "team_id": {
+      "type": "many2one",
+      "string": "Team",
+      "required": true
+    },
+    "partner_id": {
+      "type": "many2one",
+      "string": "Vendor",
+      "required": false
+    },
+    "check_id": {
+      "type": "many2one",
+      "string": "Check",
+      "required": false
+    },
+    "product_tmpl_id": {
+      "type": "many2one",
+      "string": "Product",
+      "required": false
+    },
+    "product_id": {
+      "type": "many2one",
+      "string": "Product Variant",
+      "required": false
+    },
+    "lot_ids": {
+      "type": "many2many",
+      "string": "Lot",
+      "required": false
+    },
+    "priority": {
+      "type": "selection",
+      "string": "Priority",
+      "required": false
+    },
+    "create_uid": {
+      "type": "many2one",
+      "string": "Created by",
+      "required": false
+    },
+    "create_date": {
+      "type": "datetime",
+      "string": "Created on",
+      "required": false
+    },
+    "write_uid": {
+      "type": "many2one",
+      "string": "Last Updated by",
+      "required": false
+    },
+    "write_date": {
+      "type": "datetime",
+      "string": "Last Updated on",
+      "required": false
+    },
+    "workorder_id": {
+      "type": "many2one",
+      "string": "Operation",
+      "required": false
+    },
+    "workcenter_id": {
+      "type": "many2one",
+      "string": "Work Center",
+      "required": false
+    },
+    "production_id": {
+      "type": "many2one",
+      "string": "Production Order",
+      "required": false
+    },
+    "title": {
+      "type": "char",
+      "string": "Title",
+      "required": false
+    },
+    "repair_id": {
+      "type": "many2one",
+      "string": "Repair Order",
+      "required": false
+    }
+  },
+  "quality_reasons": [
+    {
+      "id": 1,
+      "name": "Falha no centro de trabalho"
+    },
+    {
+      "id": 2,
+      "name": "Qualidade das peças"
+    },
+    {
+      "id": 3,
+      "name": "Operação de trabalho"
+    },
+    {
+      "id": 4,
+      "name": "Outros"
+    }
+  ],
+  "quality_teams": [
+    {
+      "id": 1,
+      "name": "Main Quality Team"
+    }
+  ]
+}
