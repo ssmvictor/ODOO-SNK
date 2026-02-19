@@ -1,7 +1,30 @@
 # -*- coding: utf-8 -*-
 """
-Módulo de conexão com Odoo via OdooRPC
-Fornece classes e funções reutilizáveis para autenticação e comunicação com a API.
+Módulo de conexão com o Odoo via OdooRPC (JSON-RPC).
+
+Fornece classes e funções reutilizáveis para autenticação e comunicação
+com a API do Odoo 19 Enterprise. Lê as credenciais do arquivo .env na
+raiz do projeto.
+
+Uso rápido::
+
+    from loginOdoo.conexao import criar_conexao
+
+    conexao = criar_conexao()
+    parceiros = conexao.search_read('res.partner', campos=['name', 'email'])
+
+Classes:
+    OdooConfig         -- Dataclass com os parâmetros de conexão.
+    OdooConexao        -- Gerencia conexão e operações CRUD no Odoo.
+
+Funções:
+    carregar_configuracao() -- Lê credenciais do .env.
+    criar_conexao()         -- Cria e retorna conexão já autenticada.
+
+Exceções:
+    OdooError           -- Base para todos os erros deste módulo.
+    OdooConfigError     -- Variáveis de ambiente ausentes ou inválidas.
+    OdooConnectionError -- Falha ao conectar ou autenticar no Odoo.
 """
 
 from __future__ import annotations
@@ -39,17 +62,26 @@ DEFAULT_TIMEOUT: int = 30  # segundos
 
 @dataclass
 class OdooConfig:
-    """Configuração de conexão com o Odoo."""
+    """Parâmetros de conexão com o Odoo.
+
+    Attributes:
+        url:      URL completa do servidor (ex: ``https://empresa.odoo.com``).
+        db:       Nome do banco de dados Odoo.
+        username: E-mail do usuário (variável ``ODOO_EMAIL``).
+        password: Senha do usuário (variável ``ODOO_SENHA``).
+    """
+
     url: str
     db: str
     username: str
     password: str
 
     def validar(self) -> list[str]:
-        """Valida se todas as configurações estão preenchidas.
-        
+        """Verifica se todas as credenciais estão preenchidas.
+
         Returns:
-            Lista de campos faltantes (vazia se todos ok).
+            Lista com os nomes das variáveis de ambiente faltantes.
+            Retorna lista vazia quando todas estão configuradas.
         """
         campos: dict[str, str | None] = {
             "ODOO_URL": self.url,
@@ -61,16 +93,19 @@ class OdooConfig:
 
 
 def carregar_configuracao(env_path: Optional[Path] = None) -> OdooConfig:
-    """Carrega configuração do Odoo a partir do arquivo .env.
-    
+    """Carrega as credenciais do Odoo a partir do arquivo ``.env``.
+
     Args:
-        env_path: Caminho para o arquivo .env. Se None, usa a raiz do projeto.
-        
+        env_path: Caminho para o arquivo ``.env``.
+                  Se ``None``, usa ``<raiz_do_projeto>/.env``.
+
     Returns:
-        OdooConfig com as credenciais carregadas.
-        
+        :class:`OdooConfig` populado com as credenciais lidas.
+
     Raises:
-        OdooConfigError: Se variáveis obrigatórias não estiverem configuradas.
+        OdooConfigError: Quando uma ou mais variáveis obrigatórias
+            (``ODOO_URL``, ``ODOO_DB``, ``ODOO_EMAIL``, ``ODOO_SENHA``)
+            não estiverem definidas no arquivo ``.env``.
     """
     if env_path is None:
         env_path = Path(__file__).resolve().parent.parent / ".env"
@@ -95,13 +130,30 @@ def carregar_configuracao(env_path: Optional[Path] = None) -> OdooConfig:
 
 
 class OdooConexao:
-    """Conexão com o Odoo via OdooRPC (JSON-RPC por padrão)."""
+    """Conexão com o Odoo via OdooRPC (protocolo JSON-RPC / JSON-RPC+SSL).
+
+    Encapsula autenticação e operações CRUD básicas, expondo métodos
+    em português para facilitar o uso nos scripts de sincronização.
+
+    Exemplo de uso::
+
+        config = carregar_configuracao()
+        conn = OdooConexao(config)
+        conn.conectar()
+
+        registros = conn.search_read('res.partner', campos=['name'])
+        novo_id   = conn.criar('product.template', {'name': 'Teste'})
+        conn.atualizar('product.template', novo_id, {'list_price': 10.0})
+        conn.excluir('product.template', novo_id)
+    """
     
     def __init__(self, config: OdooConfig) -> None:
-        """Inicializa a conexão com o Odoo.
-        
+        """Inicializa os atributos internos da conexão sem abrir socket.
+
+        A conexão efetiva só é aberta ao chamar :meth:`conectar`.
+
         Args:
-            config: Configuração de conexão.
+            config: Instância de :class:`OdooConfig` com as credenciais.
         """
         self._config: OdooConfig = config
         self._odoo: Optional[odoorpc.ODOO] = None
@@ -112,13 +164,15 @@ class OdooConexao:
         self._host, self._port, self._protocol = self._parse_url(config.url)
     
     def _parse_url(self, url: str) -> tuple[str, int, str]:
-        """Extrai host, porta e protocolo da URL.
-        
+        """Extrai host, porta e protocolo OdooRPC a partir de uma URL.
+
         Args:
-            url: URL completa (ex: 'http://localhost:8069' ou 'https://example.com')
-            
+            url: URL completa, ex: ``'http://localhost:8069'``
+                 ou ``'https://empresa.odoo.com'``.
+
         Returns:
-            Tupla (host, porta, protocol)
+            Tupla ``(host, porta, protocolo)`` onde ``protocolo`` é
+            ``'jsonrpc'`` para HTTP ou ``'jsonrpc+ssl'`` para HTTPS.
         """
         # Remove protocolo
         if url.startswith('https://'):
@@ -163,10 +217,13 @@ class OdooConexao:
         return self._odoo
     
     def conectar(self) -> bool:
-        """Estabelece conexão e autentica no Odoo.
-        
+        """Abre a conexão JSON-RPC e autentica o usuário no Odoo.
+
+        Instancia o objeto OdooRPC, chama ``login`` e armazena o UID
+        do usuário autenticado em :attr:`uid`.
+
         Returns:
-            True se conectou com sucesso, False caso contrário.
+            ``True`` em caso de sucesso; ``False`` se ocorrer qualquer erro.
         """
         try:
             # Cria instância OdooRPC
@@ -199,10 +256,10 @@ class OdooConexao:
             return False
     
     def obter_versao(self) -> Optional[str]:
-        """Obtém a versão do servidor Odoo.
-        
+        """Consulta a versão do servidor Odoo sem autenticação.
+
         Returns:
-            String com a versão ou None se erro.
+            String com a versão (ex: ``'19.0'``) ou ``None`` em caso de erro.
         """
         try:
             if self._odoo is None:
@@ -232,19 +289,23 @@ class OdooConexao:
         args: Optional[list[Any]] = None,
         kwargs: Optional[dict[str, Any]] = None
     ) -> Any:
-        """Executa um método em um modelo do Odoo.
-        
+        """Executa um método arbitrário em um modelo do Odoo via RPC.
+
+        Útil para chamar métodos que não possuem wrapper dedicado, como
+        ``fields_get``, ``action_apply_inventory``, etc.
+
         Args:
-            modelo: Nome do modelo (ex: 'res.partner')
-            metodo: Nome do método (ex: 'search_read')
-            args: Argumentos posicionais
-            kwargs: Argumentos nomeados
-            
+            modelo: Nome técnico do modelo (ex: ``'res.partner'``).
+            metodo: Nome do método a chamar (ex: ``'fields_get'``).
+            args:   Lista de argumentos posicionais. Padrão: ``[]``.
+            kwargs: Dicionário de argumentos nomeados. Quando fornecido,
+                    é adicionado ao final da lista de argumentos.
+
         Returns:
-            Resultado da chamada.
-            
+            Valor retornado pelo método no servidor Odoo.
+
         Raises:
-            ConnectionError: Se não estiver conectado.
+            ConnectionError: Se :meth:`conectar` ainda não foi chamado.
         """
         if not self._conectado or self._odoo is None:
             raise ConnectionError("Não conectado ao Odoo. Execute conectar() primeiro.")
@@ -269,18 +330,25 @@ class OdooConexao:
         offset: int = 0,
         ordem: Optional[str] = None
     ) -> list[dict[str, Any]]:
-        """Busca e lê registros de um modelo.
-        
+        """Busca e retorna registros de um modelo com filtros opcionais.
+
+        Equivalente ao método ``search_read`` da ORM do Odoo.
+
         Args:
-            modelo: Nome do modelo
-            dominio: Filtros de busca
-            campos: Campos a retornar
-            limite: Quantidade máxima de registros
-            offset: Deslocamento para paginação
-            ordem: Ordenação (ex: 'name asc')
-            
+            modelo:  Nome técnico do modelo (ex: ``'product.template'``).
+            dominio: Lista de triplas de domínio Odoo para filtrar registros.
+                     Ex: ``[['active', '=', True]]``. Padrão: ``[]`` (sem filtro).
+            campos:  Lista de campos a incluir no resultado.
+                     Padrão: todos os campos.
+            limite:  Quantidade máxima de registros a retornar. Padrão: ``100``.
+            offset:  Número de registros a pular (paginação). Padrão: ``0``.
+            ordem:   Critério de ordenação (ex: ``'name asc'``).
+
         Returns:
-            Lista de dicionários com os registros.
+            Lista de dicionários, cada um representando um registro.
+
+        Raises:
+            ConnectionError: Se :meth:`conectar` ainda não foi chamado.
         """
         if not self._conectado or self._odoo is None:
             raise ConnectionError("Não conectado ao Odoo. Execute conectar() primeiro.")
@@ -304,14 +372,17 @@ class OdooConexao:
         return Model.search_read(dominio, **kwargs)
     
     def criar(self, modelo: str, valores: dict[str, Any]) -> int:
-        """Cria um novo registro.
-        
+        """Cria um novo registro no modelo informado.
+
         Args:
-            modelo: Nome do modelo
-            valores: Dicionário com os valores do registro
-            
+            modelo:  Nome técnico do modelo (ex: ``'product.template'``).
+            valores: Dicionário ``{campo: valor}`` com os dados do registro.
+
         Returns:
-            ID do registro criado.
+            ID (inteiro) do registro recém-criado.
+
+        Raises:
+            ConnectionError: Se :meth:`conectar` ainda não foi chamado.
         """
         if not self._conectado or self._odoo is None:
             raise ConnectionError("Não conectado ao Odoo. Execute conectar() primeiro.")
@@ -320,15 +391,18 @@ class OdooConexao:
         return Model.create(valores)
     
     def atualizar(self, modelo: str, ids: int | list[int], valores: dict[str, Any]) -> bool:
-        """Atualiza registros existentes.
-        
+        """Atualiza um ou mais registros existentes.
+
         Args:
-            modelo: Nome do modelo
-            ids: ID ou lista de IDs dos registros
-            valores: Dicionário com os valores a atualizar
-            
+            modelo:  Nome técnico do modelo.
+            ids:     ID único ou lista de IDs a atualizar.
+            valores: Dicionário ``{campo: valor}`` com os dados a sobrescrever.
+
         Returns:
-            True se sucesso.
+            ``True`` se a operação foi concluída com sucesso.
+
+        Raises:
+            ConnectionError: Se :meth:`conectar` ainda não foi chamado.
         """
         if not self._conectado or self._odoo is None:
             raise ConnectionError("Não conectado ao Odoo. Execute conectar() primeiro.")
@@ -340,14 +414,17 @@ class OdooConexao:
         return Model.write(ids, valores)
     
     def excluir(self, modelo: str, ids: int | list[int]) -> bool:
-        """Exclui registros.
-        
+        """Remove um ou mais registros do modelo informado.
+
         Args:
-            modelo: Nome do modelo
-            ids: ID ou lista de IDs dos registros
-            
+            modelo: Nome técnico do modelo.
+            ids:    ID único ou lista de IDs a excluir.
+
         Returns:
-            True se sucesso.
+            ``True`` se a operação foi concluída com sucesso.
+
+        Raises:
+            ConnectionError: Se :meth:`conectar` ainda não foi chamado.
         """
         if not self._conectado or self._odoo is None:
             raise ConnectionError("Não conectado ao Odoo. Execute conectar() primeiro.")
@@ -360,17 +437,22 @@ class OdooConexao:
 
 
 def criar_conexao(config: Optional[OdooConfig] = None) -> OdooConexao:
-    """Função utilitária para criar e conectar ao Odoo.
-    
+    """Cria e retorna uma conexão já autenticada com o Odoo.
+
+    Função utilitária de alto nível: carrega as credenciais do ``.env``
+    (ou usa ``config`` fornecido), instancia :class:`OdooConexao` e chama
+    :meth:`~OdooConexao.conectar`.
+
     Args:
-        config: Configuração opcional. Se None, carrega do .env.
-        
+        config: Configuração opcional. Se ``None``, as credenciais são
+                lidas automaticamente do arquivo ``.env``.
+
     Returns:
-        OdooConexao já autenticada.
-        
+        Instância de :class:`OdooConexao` já autenticada e pronta para uso.
+
     Raises:
-        OdooConnectionError: Se não conseguir conectar.
-        OdooConfigError: Se as variáveis de ambiente não estiverem configuradas.
+        OdooConfigError:     Variáveis de ambiente ausentes no ``.env``.
+        OdooConnectionError: Falha ao conectar ou autenticar no Odoo.
     """
     if config is None:
         config = carregar_configuracao()

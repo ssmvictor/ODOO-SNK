@@ -1,7 +1,43 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Sincronizacao de Parceiros: Sankhya (TGFPAR) -> Odoo (res.partner)
+Sincronização de Parceiros: Sankhya (TGFPAR) → Odoo (res.partner).
+
+Lê os parceiros (clientes, fornecedores, vendedores, transportadoras e
+motoristas) do Sankhya via SQL e realiza upsert no modelo ``res.partner``
+do Odoo.
+
+Detecção adaptativa de chave externa:
+    O script inspeciona os campos disponíveis em ``res.partner`` e seleciona
+    automaticamente o campo de chave externa mais adequado, na seguinte
+    ordem de preferência:
+    ``x_sankhya_id`` → ``x_codigo_sankhya`` → ``x_studio_sankhya_id`` → ``ref``.
+
+Mapeamento principal:
+    - CODPARC       → campo de chave externa (e ``ref`` como fallback)
+    - RAZAOSOCIAL   → name (com fallback para NOMEPARC)
+    - TIPPESSOA     → company_type / is_company (``J``/``E`` = empresa, ``F`` = pessoa)
+    - CGC_CPF       → vat / l10n_br_cnpj_cpf
+    - NOMEEND/NUMEND → street
+    - COMPLEMENTO/NOMEBAI → street2
+    - NOMECID       → city
+    - CEP           → zip
+    - UF_SIGLA      → state_id (via ``res.country.state``)
+    - PAIS_SIGLA    → country_id (via ``res.country``)
+    - EMAIL         → email
+    - TELEFONE      → phone
+    - FAX           → mobile
+    - INSCESTADNAUF → l10n_br_ie_code / l10n_br_ie / x_ie
+    - CLIENTE/FORNECEDOR → customer_rank / supplier_rank
+    - Papéis (CLIENTE, FORNECEDOR, VENDEDOR, TRANSPORTADORA, MOTORISTA) → tags
+
+Compatibilidade:
+    O mapeamento filtra os campos pelo que está disponível na instância Odoo,
+    garantindo compatibilidade com diferentes versões e customizações.
+
+Uso::
+
+    python Parceiros/sincronizar_parceiros.py
 """
 
 from __future__ import annotations
@@ -32,6 +68,11 @@ from rich.table import Table
 
 
 def configurar_saida_utf8() -> None:
+    """Força a codificação UTF-8 nos streams ``stdout`` e ``stderr``.
+
+    Necessário no Windows para evitar erros de encoding ao exibir
+    emojis e caracteres especiais via ``rich``.
+    """
     for stream_name in ("stdout", "stderr"):
         stream = getattr(sys, stream_name, None)
         if hasattr(stream, "reconfigure"):
@@ -55,6 +96,14 @@ SQL_PATH = PROJECT_ROOT / "loginSNK" / "sql" / "parceiros.sql"
 
 
 def criar_gateway_client() -> GatewayClient:
+    """Autentica no Sankhya via OAuth2 e retorna um ``GatewayClient`` pronto.
+
+    Returns:
+        Instância de ``GatewayClient`` autenticada.
+
+    Raises:
+        RuntimeError: Se as credenciais Sankhya não estiverem definidas no ``.env``.
+    """
     oauth = OAuthClient(base_url=SANKHYA_BASE_URL, token=SANKHYA_X_TOKEN)
     if not SANKHYA_CLIENT_ID or not SANKHYA_CLIENT_SECRET:
         raise RuntimeError("SANKHYA_CLIENT_ID e SANKHYA_CLIENT_SECRET devem estar definidos no .env")
@@ -64,12 +113,35 @@ def criar_gateway_client() -> GatewayClient:
 
 
 def carregar_sql(caminho: Path) -> str:
+    """Lê e retorna o conteúdo de um arquivo SQL.
+
+    Args:
+        caminho: Caminho para o arquivo ``.sql``.
+
+    Returns:
+        Conteúdo do arquivo como string (sem espaços nas extremidades).
+
+    Raises:
+        FileNotFoundError: Se o arquivo não existir no caminho informado.
+    """
     if not caminho.exists():
         raise FileNotFoundError(f"Arquivo SQL nao encontrado: {caminho}")
     return caminho.read_text(encoding="utf-8").strip()
 
 
 def buscar_parceiros_sankhya(client: GatewayClient, sql: str) -> list[dict[str, Any]]:
+    """Executa o SQL no Sankhya via ``DbExplorerSP.executeQuery`` e retorna os parceiros.
+
+    Args:
+        client: ``GatewayClient`` já autenticado.
+        sql:    Consulta SQL a executar.
+
+    Returns:
+        Lista de dicionários com os dados retornados pelo Sankhya.
+
+    Raises:
+        RuntimeError: Se a resposta indicar erro.
+    """
     response = client.execute_service(
         service_name="DbExplorerSP.executeQuery",
         request_body={"sql": sql},
@@ -85,6 +157,15 @@ def buscar_parceiros_sankhya(client: GatewayClient, sql: str) -> list[dict[str, 
 
 
 def obter_campos_modelo(conexao_odoo: OdooConexao, modelo: str) -> dict[str, Any]:
+    """Retorna os metadados dos campos de um modelo Odoo, com cache.
+
+    Args:
+        conexao_odoo: Conexão autenticada com o Odoo.
+        modelo:       Nome técnico do modelo (ex.: ``res.partner``).
+
+    Returns:
+        Dicionário ``{nome_campo: metadados}`` conforme retornado por ``fields_get``.
+    """
     if modelo in FIELDS_CACHE:
         return FIELDS_CACHE[modelo]
     campos = conexao_odoo.executar(modelo, "fields_get")
@@ -93,6 +174,19 @@ def obter_campos_modelo(conexao_odoo: OdooConexao, modelo: str) -> dict[str, Any
 
 
 def primeiro_campo_disponivel(campos: dict[str, Any], candidatos: list[str], tipos: tuple[str, ...]) -> str | None:
+    """Retorna o primeiro campo da lista ``candidatos`` que existe no modelo e tem o tipo correto.
+
+    Usado para selecionar adaptativamente o campo de chave externa Sankhya
+    em ``res.partner``, dependendo dos campos customizados disponíveis.
+
+    Args:
+        campos:     Metadados dos campos do modelo (retorno de ``fields_get``).
+        candidatos: Lista de nomes de campo em ordem de preferência.
+        tipos:      Tipos aceitos (ex.: ``("char", "integer")``).
+
+    Returns:
+        Nome do primeiro campo compatível, ou ``None`` se nenhum for encontrado.
+    """
     for nome in candidatos:
         if nome in campos and campos[nome].get("type") in tipos:
             return nome
@@ -100,15 +194,40 @@ def primeiro_campo_disponivel(campos: dict[str, Any], candidatos: list[str], tip
 
 
 def limpar_documento(valor: Any) -> str:
+    """Remove todos os caracteres não numéricos de um documento (CPF/CNPJ).
+
+    Args:
+        valor: Valor bruto do documento (string ou outro tipo conversível).
+
+    Returns:
+        String contendo apenas os dígitos do documento.
+    """
     bruto = str(valor or "").strip()
     return "".join(ch for ch in bruto if ch.isdigit())
 
 
 def flag_sankhya(valor: Any) -> bool:
+    """Converte o flag booleano do Sankhya (``'S'``/``'N'``) para ``bool`` Python.
+
+    Args:
+        valor: Valor bruto do campo flag (ex.: ``'S'``, ``'N'``, ``None``).
+
+    Returns:
+        ``True`` se o valor for ``'S'`` (case-insensitive), ``False`` caso contrário.
+    """
     return str(valor or "").strip().upper() == "S"
 
 
 def resolve_country_id(conexao_odoo: OdooConexao, sigla_pais: Any) -> int | None:
+    """Busca o ID de ``res.country`` pela sigla ISO do país, com cache.
+
+    Args:
+        conexao_odoo: Conexão autenticada com o Odoo.
+        sigla_pais:   Sigla ISO 2 letras do país (ex.: ``'BR'``).
+
+    Returns:
+        ID inteiro do ``res.country``, ou ``None`` se não encontrado ou vazio.
+    """
     sigla = str(sigla_pais or "").strip().upper()
     if not sigla:
         return None
@@ -122,6 +241,19 @@ def resolve_country_id(conexao_odoo: OdooConexao, sigla_pais: Any) -> int | None
 
 
 def resolve_state_id(conexao_odoo: OdooConexao, uf_sigla: Any, country_id: int | None) -> int | None:
+    """Busca o ID de ``res.country.state`` pela sigla da UF, com cache.
+
+    Tenta primeiro a busca filtrada por UF + país. Se não encontrar, faz
+    uma busca apenas pela UF como fallback.
+
+    Args:
+        conexao_odoo: Conexão autenticada com o Odoo.
+        uf_sigla:     Sigla da UF (ex.: ``'SP'``).
+        country_id:   ID do ``res.country`` para refinar a busca, ou ``None``.
+
+    Returns:
+        ID inteiro do ``res.country.state``, ou ``None`` se não encontrado.
+    """
     uf = str(uf_sigla or "").strip().upper()
     if not uf:
         return None
@@ -146,6 +278,18 @@ def resolve_state_id(conexao_odoo: OdooConexao, uf_sigla: Any, country_id: int |
 
 
 def resolver_tag_parceiro(conexao_odoo: OdooConexao, nome_tag: str) -> int | None:
+    """Busca ou cria uma tag de parceiro (``res.partner.category``) pelo nome.
+
+    Utiliza cache global para evitar buscas repetidas. Se a tag não existir
+    no Odoo, tenta criá-la. Silencia erros de criação retornando ``None``.
+
+    Args:
+        conexao_odoo: Conexão autenticada com o Odoo.
+        nome_tag:     Nome da tag (ex.: ``'CLIENTE'``, ``'FORNECEDOR'``).
+
+    Returns:
+        ID inteiro da ``res.partner.category``, ou ``None`` em caso de falha.
+    """
     nome = str(nome_tag or "").strip()
     if not nome:
         return None
@@ -173,6 +317,22 @@ def mapear_parceiro(
     campos_partner: dict[str, Any],
     campo_chave_externa: str | None,
 ) -> dict[str, Any]:
+    """Converte um registro do Sankhya para o formato de ``res.partner`` do Odoo.
+
+    Monta o dicionário de valores considerando os campos disponíveis na
+    instância Odoo (versão e customizações). Trata endereço, documentos
+    (CNPJ/CPF, IE), país, estado, papéis (cliente/fornecedor) e tags.
+
+    Args:
+        parc_snk:            Dicionário com os campos do parceiro do Sankhya.
+        conexao_odoo:        Conexão autenticada com o Odoo.
+        campos_partner:      Metadados dos campos de ``res.partner``.
+        campo_chave_externa: Campo de chave externa detectado, ou ``None``.
+
+    Returns:
+        Dicionário com os valores filtrados pelos campos existentes no Odoo,
+        garantindo compatibilidade. Sempre inclui o campo ``name``.
+    """
     codparc = str(parc_snk.get("CODPARC", "")).strip()
     razao = str(parc_snk.get("RAZAOSOCIAL") or "").strip()
     nome = str(parc_snk.get("NOMEPARC") or "").strip()
@@ -290,6 +450,19 @@ def buscar_parceiro_existente(
     codigo: str,
     campo_chave_externa: str | None,
 ) -> dict[str, Any] | None:
+    """Localiza um ``res.partner`` existente pelo código Sankhya.
+
+    Busca pelo campo de chave externa detectado, ou pelo campo ``ref``
+    se nenhum campo customizado estiver disponível.
+
+    Args:
+        conexao_odoo:        Conexão autenticada com o Odoo.
+        codigo:              Código do parceiro no Sankhya (CODPARC).
+        campo_chave_externa: Campo de chave externa a usar, ou ``None`` para usar ``ref``.
+
+    Returns:
+        Primeiro registro encontrado (com ``id``), ou ``None``.
+    """
     dominio: list[list[Any]]
     if campo_chave_externa:
         dominio = [[campo_chave_externa, "=", codigo]]
@@ -305,6 +478,21 @@ def sincronizar_parceiro(
     codigo: str,
     campo_chave_externa: str | None,
 ) -> tuple[str, int]:
+    """Cria ou atualiza um ``res.partner`` no Odoo.
+
+    Busca o parceiro pelo código Sankhya. Se existir, atualiza; caso contrário,
+    cria um novo registro.
+
+    Args:
+        conexao_odoo:        Conexão autenticada com o Odoo.
+        dados_odoo:          Dicionário de valores mapeado por :func:`mapear_parceiro`.
+        codigo:              Código do parceiro no Sankhya (CODPARC).
+        campo_chave_externa: Campo de chave externa usado para busca.
+
+    Returns:
+        Tupla ``(acao, partner_id)`` onde ``acao`` é ``'criado'`` ou ``'atualizado'``
+        e ``partner_id`` é o ID do ``res.partner`` no Odoo.
+    """
     existente = buscar_parceiro_existente(conexao_odoo, codigo, campo_chave_externa)
     if existente:
         partner_id = int(existente["id"])
@@ -317,6 +505,18 @@ def sincronizar_parceiro(
 
 
 def executar_sincronizacao() -> None:
+    """Ponto de entrada principal da sincronização de parceiros.
+
+    Executa o fluxo completo:
+
+    1. **Sankhya** — autentica e executa ``loginSNK/sql/parceiros.sql``.
+    2. **Odoo** — conecta, introspecciona campos e detecta o campo de chave externa.
+    3. **Sincronização** — para cada parceiro, chama :func:`mapear_parceiro` e
+       :func:`sincronizar_parceiro`, exibindo barra de progresso (``rich``).
+    4. **Resumo** — exibe painel com total, criados, atualizados e erros.
+
+    Encerra o processo com ``sys.exit(1)`` se a conexão ao Odoo falhar.
+    """
     console.print(Panel.fit("[bold blue]Sincronizacao de Parceiros: Sankhya -> Odoo[/bold blue]"))
 
     with console.status("[bold green]Conectando Sankhya...", spinner="dots"):

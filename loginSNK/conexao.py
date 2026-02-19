@@ -1,7 +1,31 @@
 # -*- coding: utf-8 -*-
 """
-Módulo de autenticação na API Sankhya via Sankhya SDK Python.
-Fornece classes e funções reutilizáveis para conexão OAuth2.
+Módulo de autenticação na API Sankhya via Sankhya SDK Python (OAuth2).
+
+Fornece classes e funções reutilizáveis para obter e renovar tokens
+OAuth2 (client credentials) e criar sessões HTTP autenticadas para
+uso com o ``GatewayClient`` (DbExplorerSP).
+
+Uso rápido::
+
+    from loginSNK.conexao import criar_conexao_sankhya
+
+    conexao = criar_conexao_sankhya()
+    session = conexao.session          # SankhyaSession com auto-refresh
+    headers = conexao.obter_headers_autorizacao()
+
+Classes:
+    SankhyaConfig    -- Dataclass com os parâmetros de autenticação OAuth2.
+    SankhyaConexao   -- Gerencia autenticação e sessão com a API Sankhya.
+
+Funções:
+    carregar_configuracao_sankhya() -- Lê credenciais do .env.
+    criar_conexao_sankhya()         -- Cria e retorna conexão já autenticada.
+
+Exceções:
+    SankhyaError       -- Base para todos os erros deste módulo.
+    SankhyaConfigError -- Variáveis de ambiente ausentes ou inválidas.
+    SankhyaAuthError   -- Falha na autenticação OAuth2.
 """
 
 from __future__ import annotations
@@ -40,17 +64,26 @@ BASE_URL_DEFAULT: str = "https://api.sankhya.com.br"
 
 @dataclass
 class SankhyaConfig:
-    """Configuração de conexão com a API Sankhya via OAuth2."""
+    """Parâmetros de autenticação OAuth2 para a API Sankhya.
+
+    Attributes:
+        client_id:     Client ID obtido no Portal do Desenvolvedor Sankhya.
+        client_secret: Client Secret correspondente ao ``client_id``.
+        token:         Token proprietário Sankhya (cabeçalho ``X-Token``).
+        base_url:      URL base da API. Padrão: ``https://api.sankhya.com.br``.
+    """
+
     client_id: str
     client_secret: str
     token: str  # Token proprietário Sankhya (X-Token)
     base_url: str = BASE_URL_DEFAULT
 
     def validar(self) -> list[str]:
-        """Valida se todas as configurações estão preenchidas.
+        """Verifica se todas as credenciais estão preenchidas.
 
         Returns:
-            Lista de campos faltantes (vazia se todos ok).
+            Lista com os nomes das variáveis de ambiente faltantes.
+            Retorna lista vazia quando todas estão configuradas.
         """
         campos: dict[str, str | None] = {
             "SANKHYA_CLIENT_ID": self.client_id,
@@ -61,16 +94,19 @@ class SankhyaConfig:
 
 
 def carregar_configuracao_sankhya(env_path: Optional[Path] = None) -> SankhyaConfig:
-    """Carrega configuração da Sankhya a partir do arquivo .env.
+    """Carrega as credenciais Sankhya a partir do arquivo ``.env``.
 
     Args:
-        env_path: Caminho para o arquivo .env. Se None, usa a raiz do projeto.
+        env_path: Caminho para o arquivo ``.env``.
+                  Se ``None``, usa ``<raiz_do_projeto>/.env``.
 
     Returns:
-        SankhyaConfig com as credenciais carregadas.
+        :class:`SankhyaConfig` populado com as credenciais lidas.
 
     Raises:
-        SankhyaConfigError: Se variáveis obrigatórias não estiverem configuradas.
+        SankhyaConfigError: Quando uma ou mais variáveis obrigatórias
+            (``SANKHYA_CLIENT_ID``, ``SANKHYA_CLIENT_SECRET``,
+            ``SANKHYA_TOKEN``) não estiverem definidas no ``.env``.
     """
     if env_path is None:
         env_path = Path(__file__).resolve().parent.parent / ".env"
@@ -94,13 +130,34 @@ def carregar_configuracao_sankhya(env_path: Optional[Path] = None) -> SankhyaCon
 
 
 class SankhyaConexao:
-    """Conexão com a API Sankhya via SDK (OAuth2)."""
+    """Gerencia autenticação e sessão OAuth2 com a API Sankhya.
+
+    Utiliza o ``OAuthClient`` do Sankhya SDK para obter o Bearer Token
+    e cria uma ``SankhyaSession`` com auto-refresh de tokens. A sessão
+    pode ser usada diretamente com o ``GatewayClient`` para executar
+    queries SQL via ``DbExplorerSP.executeQuery``.
+
+    Exemplo de uso::
+
+        config = carregar_configuracao_sankhya()
+        conn = SankhyaConexao(config)
+        conn.autenticar()
+
+        from sankhya_sdk.http import GatewayClient
+        client = GatewayClient(conn.session)
+        response = client.execute_service(
+            "DbExplorerSP.executeQuery",
+            {"sql": "SELECT CODPROD FROM TGFPRO WHERE ROWNUM <= 5"},
+        )
+    """
 
     def __init__(self, config: SankhyaConfig) -> None:
-        """Inicializa a conexão com a Sankhya.
+        """Inicializa o cliente OAuth2 sem realizar autenticação.
+
+        A autenticação efetiva só ocorre ao chamar :meth:`autenticar`.
 
         Args:
-            config: Configuração de conexão.
+            config: Instância de :class:`SankhyaConfig` com as credenciais.
         """
         self._config: SankhyaConfig = config
         self._oauth: OAuthClient = OAuthClient(
@@ -137,10 +194,13 @@ class SankhyaConexao:
         return self._session
 
     def autenticar(self) -> bool:
-        """Realiza autenticação OAuth2 e obtém o Bearer Token.
+        """Realiza a autenticação OAuth2 e cria a sessão HTTP.
+
+        Chama ``OAuthClient.authenticate`` com as credenciais configuradas
+        e instancia a ``SankhyaSession`` com auto-refresh de tokens.
 
         Returns:
-            True se autenticou com sucesso, False caso contrário.
+            ``True`` se a autenticação foi bem-sucedida; ``False`` caso contrário.
         """
         try:
             self._bearer_token = self._oauth.authenticate(
@@ -164,13 +224,15 @@ class SankhyaConexao:
             return False
 
     def obter_headers_autorizacao(self) -> dict[str, str]:
-        """Retorna headers com Authorization Bearer para requisições.
+        """Retorna os headers HTTP com o Bearer Token para requisições manuais.
+
+        Obtém um token válido via ``get_valid_token`` (auto-refresh se expirado).
 
         Returns:
-            Dicionário com header Authorization.
+            Dicionário com os cabeçalhos ``Authorization`` e ``Content-Type``.
 
         Raises:
-            ValueError: Se não estiver autenticado.
+            ValueError: Se :meth:`autenticar` ainda não foi chamado.
         """
         if not self._bearer_token:
             raise ValueError("Não autenticado. Execute autenticar() primeiro.")
@@ -185,17 +247,22 @@ class SankhyaConexao:
 
 
 def criar_conexao_sankhya(config: Optional[SankhyaConfig] = None) -> SankhyaConexao:
-    """Função utilitária para criar e autenticar na Sankhya.
+    """Cria e retorna uma conexão já autenticada com a API Sankhya.
+
+    Função utilitária de alto nível: carrega as credenciais do ``.env``
+    (ou usa ``config`` fornecido), instancia :class:`SankhyaConexao` e
+    chama :meth:`~SankhyaConexao.autenticar`.
 
     Args:
-        config: Configuração opcional. Se None, carrega do .env.
+        config: Configuração opcional. Se ``None``, as credenciais são
+                lidas automaticamente do arquivo ``.env``.
 
     Returns:
-        SankhyaConexao já autenticada.
+        Instância de :class:`SankhyaConexao` já autenticada e pronta para uso.
 
     Raises:
-        SankhyaAuthError: Se não conseguir autenticar.
-        SankhyaConfigError: Se as variáveis de ambiente não estiverem configuradas.
+        SankhyaConfigError: Variáveis de ambiente ausentes no ``.env``.
+        SankhyaAuthError:   Falha na autenticação OAuth2.
     """
     if config is None:
         config = carregar_configuracao_sankhya()
@@ -211,7 +278,12 @@ def criar_conexao_sankhya(config: Optional[SankhyaConfig] = None) -> SankhyaCone
 # ========== DEMONSTRAÇÃO / TESTE ==========
 
 def main() -> None:
-    """Função principal de demonstração."""
+    """Demonstra a autenticação Sankhya e exibe os primeiros caracteres do token.
+
+    Executar diretamente para testar a configuração::
+
+        python loginSNK/conexao.py
+    """
     print("=" * 50)
     print("🔐 AUTENTICAÇÃO SANKHYA (SDK OAuth2)")
     print("=" * 50)

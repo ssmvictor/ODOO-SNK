@@ -1,7 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Sincronização de Grupos: Sankhya (TGFGRU) → Odoo (product.category)
+Sincronização de Grupos de Produtos: Sankhya (TGFGRU) → Odoo (product.category).
+
+Lê os grupos de produtos do Sankhya via SQL e realiza upsert no modelo
+``product.category`` do Odoo, preservando a hierarquia pai/filho.
+
+O processo é dividido em dois passos para evitar violações de integridade
+referencial ao criar categorias cujo pai ainda não existe no Odoo:
+
+- **Passo A** — upsert base: cria ou atualiza todas as categorias sem
+  definir ``parent_id``. Opcionalmente grava código e grau em campos
+  customizados (``x_sankhya_id``, ``x_grau`` etc., se existirem).
+- **Passo B** — reconciliação de hierarquia: para cada categoria, busca o ID
+  do pai (no mapa local ou via API) e atualiza ``parent_id``.
+
+Antes do Passo A é feita uma validação da hierarquia de origem para
+detectar auto-referências, órfãos e ciclos nos dados do Sankhya.
+
+Mapeamento principal:
+    - CODGRUPOPROD  → name (``[CODIGO] Descricao``) e campo de chave externa
+    - DESCRGRUPOPROD → parte do name
+    - CODGRUPAI     → parent_id (via mapa local ou busca por campo-chave)
+    - GRAU          → campo customizado de grau hierárquico (se disponível)
+
+Uso::
+
+    python Produtos/sincronizar_grupos.py
 """
 from __future__ import annotations
 
@@ -48,6 +73,14 @@ SANKHYA_BASE_URL = os.getenv("SANKHYA_AUTH_BASE_URL", "https://api.sankhya.com.b
 SANKHYA_X_TOKEN = os.getenv("SANKHYA_TOKEN", "")
 
 def criar_gateway_client() -> GatewayClient:
+    """Autentica no Sankhya via OAuth2 e retorna um ``GatewayClient`` pronto.
+
+    Returns:
+        Instância de ``GatewayClient`` autenticada.
+
+    Raises:
+        RuntimeError: Se as credenciais Sankhya não estiverem definidas no ``.env``.
+    """
     oauth = OAuthClient(base_url=SANKHYA_BASE_URL, token=SANKHYA_X_TOKEN)
     if not SANKHYA_CLIENT_ID or not SANKHYA_CLIENT_SECRET:
         raise RuntimeError("Credenciais Sankhya não encontradas no .env")
@@ -56,11 +89,34 @@ def criar_gateway_client() -> GatewayClient:
     return GatewayClient(session)
 
 def carregar_sql(caminho: Path) -> str:
+    """Lê e retorna o conteúdo de um arquivo SQL.
+
+    Args:
+        caminho: Caminho para o arquivo ``.sql``.
+
+    Returns:
+        Conteúdo do arquivo como string (sem espaços nas extremidades).
+
+    Raises:
+        FileNotFoundError: Se o arquivo não existir no caminho informado.
+    """
     if not caminho.exists():
         raise FileNotFoundError(f"Arquivo SQL não encontrado: {caminho}")
     return caminho.read_text(encoding="utf-8").strip()
 
 def buscar_dados_sankhya(client: GatewayClient, sql: str) -> list[dict[str, Any]]:
+    """Executa o SQL no Sankhya via ``DbExplorerSP.executeQuery`` e retorna os registros.
+
+    Args:
+        client: ``GatewayClient`` já autenticado.
+        sql:    Consulta SQL a executar.
+
+    Returns:
+        Lista de dicionários com os dados retornados pelo Sankhya.
+
+    Raises:
+        Exception: Se a resposta indicar erro.
+    """
     response = client.execute_service("DbExplorerSP.executeQuery", {"sql": sql})
     if not GatewayClient.is_success(response):
         raise Exception(GatewayClient.get_error_message(response))
@@ -72,6 +128,18 @@ def buscar_dados_sankhya(client: GatewayClient, sql: str) -> list[dict[str, Any]
     return [dict(zip(col_names, row)) for row in rows]
 
 def obter_campos_modelo(conexao: OdooConexao, modelo: str) -> dict[str, Any]:
+    """Retorna os metadados dos campos de um modelo Odoo, com cache.
+
+    Chama ``fields_get`` apenas na primeira vez que o modelo é consultado;
+    as chamadas subsequentes retornam o resultado em cache.
+
+    Args:
+        conexao: Conexão autenticada com o Odoo.
+        modelo:  Nome técnico do modelo (ex.: ``product.category``).
+
+    Returns:
+        Dicionário ``{nome_campo: metadados}`` conforme retornado por ``fields_get``.
+    """
     if modelo in FIELDS_CACHE:
         return FIELDS_CACHE[modelo]
     campos = conexao.executar(modelo, "fields_get")
@@ -80,6 +148,20 @@ def obter_campos_modelo(conexao: OdooConexao, modelo: str) -> dict[str, Any]:
 
 
 def primeiro_campo_disponivel(campos: dict[str, Any], candidatos: list[str], tipos: tuple[str, ...]) -> str | None:
+    """Retorna o primeiro campo da lista ``candidatos`` que existe no modelo e tem o tipo correto.
+
+    Usado para selecionar de forma adaptativa o campo de chave externa, campo
+    de código pai ou campo de grau, dependendo de quais campos customizados
+    estão disponíveis na instalação Odoo do cliente.
+
+    Args:
+        campos:     Metadados dos campos do modelo (retorno de ``fields_get``).
+        candidatos: Lista de nomes de campo em ordem de preferência.
+        tipos:      Tipos aceitos (ex.: ``("char", "integer")``).
+
+    Returns:
+        Nome do primeiro campo compatível, ou ``None`` se nenhum for encontrado.
+    """
     for nome in candidatos:
         if nome in campos and campos[nome].get("type") in tipos:
             return nome
@@ -87,6 +169,17 @@ def primeiro_campo_disponivel(campos: dict[str, Any], candidatos: list[str], tip
 
 
 def buscar_categoria_por_codigo(conexao: OdooConexao, codigo: str) -> dict[str, Any] | None:
+    """Localiza uma ``product.category`` pelo padrão ``[CODIGO]%`` no campo ``name``.
+
+    Utilizado como fallback quando não há campo de chave externa disponível.
+
+    Args:
+        conexao: Conexão autenticada com o Odoo.
+        codigo:  Código do grupo (CODGRUPOPROD) a buscar.
+
+    Returns:
+        Primeiro registro encontrado ou ``None``.
+    """
     codigo = str(codigo).strip()
     if not codigo or codigo == "0":
         return None
@@ -105,6 +198,17 @@ def buscar_categoria_por_chave_externa(
     campo_chave: str,
     codigo: str,
 ) -> dict[str, Any] | None:
+    """Localiza uma ``product.category`` pelo campo de chave externa Sankhya.
+
+    Args:
+        conexao:      Conexão autenticada com o Odoo.
+        campo_chave:  Nome do campo customizado que armazena o código Sankhya
+                      (ex.: ``x_sankhya_id``).
+        codigo:       Valor do código a buscar.
+
+    Returns:
+        Primeiro registro encontrado ou ``None``.
+    """
     res = conexao.search_read(
         "product.category",
         [[campo_chave, "=", codigo]],
@@ -114,6 +218,20 @@ def buscar_categoria_por_chave_externa(
     return res[0] if res else None
 
 def validar_hierarquia_origem(grupos: list[dict[str, Any]]) -> tuple[int, int, int]:
+    """Valida a hierarquia dos grupos vindos do Sankhya antes de carregar no Odoo.
+
+    Percorre todos os grupos e detecta três tipos de anomalias:
+
+    - **Auto-referência**: grupo cujo CODGRUPAI aponta para si mesmo.
+    - **Órfão**: grupo cujo CODGRUPAI não existe na lista retornada.
+    - **Ciclo**: cadeia de dependências pai/filho que forma um loop infinito.
+
+    Args:
+        grupos: Lista de dicionários com os dados dos grupos do Sankhya.
+
+    Returns:
+        Tupla ``(auto_referencia, orfaos, ciclos)`` com as contagens de cada anomalia.
+    """
     codigos = {str(g.get("CODGRUPOPROD", "")).strip() for g in grupos}
     mapa_pai: dict[str, str] = {}
     auto_referencia = 0
@@ -160,6 +278,25 @@ def sincronizar_grupo(
     campo_pai_staging: str | None,
     campo_grau: str | None,
 ) -> tuple[str, int]:
+    """Cria ou atualiza uma ``product.category`` no Odoo com os dados de um grupo Sankhya.
+
+    O nome é formatado como ``[CODIGO] Descricao`` para facilitar identificação.
+    Se campos customizados estiverem disponíveis, grava também o código pai
+    (staging) e o grau hierárquico. O ``parent_id`` **não** é definido nesta
+    etapa — a hierarquia é reconciliada no Passo B de :func:`executar`.
+
+    Args:
+        conexao:              Conexão autenticada com o Odoo.
+        dados:                Dicionário com os campos do grupo (CODGRUPOPROD,
+                              DESCRGRUPOPROD, CODGRUPAI, GRAU).
+        campo_chave:          Campo customizado de chave externa Sankhya, ou ``None``.
+        campo_pai_staging:    Campo customizado de código do pai Sankhya, ou ``None``.
+        campo_grau:           Campo customizado de grau hierárquico, ou ``None``.
+
+    Returns:
+        Tupla ``(acao, id)`` onde ``acao`` é ``'criado'`` ou ``'atualizado'``
+        e ``id`` é o ID do registro no Odoo.
+    """
     modelo = "product.category"
     codigo = str(dados.get("CODGRUPOPROD", "")).strip()
     nome = dados.get("DESCRGRUPOPROD", f"Grupo {codigo}")
@@ -196,7 +333,20 @@ def sincronizar_grupo(
         cid = conexao.criar(modelo, vals)
         return "criado", cid
 
-def executar():
+def executar() -> None:
+    """Ponto de entrada principal da sincronização de grupos de produtos.
+
+    Executa o fluxo completo em quatro etapas:
+
+    1. **Sankhya** — autentica e executa ``loginSNK/sql/grupos.sql``.
+    2. **Odoo** — conecta, introspecciona campos e valida a hierarquia de origem.
+    3. **Passo A** — upsert base de todas as categorias (sem ``parent_id``).
+    4. **Passo B** — reconcilia a hierarquia pai/filho em ``parent_id``.
+
+    Exibe barra de progresso (``rich``) para cada passo e, ao final, um
+    painel de resumo com contadores de criados, atualizados, erros,
+    pais atualizados, órfãos e anomalias da origem.
+    """
     console.print(Panel.fit("[bold magenta]📁 Sincronização de Grupos[/bold magenta]"))
     
     # 1. Sankhya

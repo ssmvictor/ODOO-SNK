@@ -1,7 +1,38 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Sincronização de Locais: Sankhya (TGFLOC) → Odoo (stock.location)
+Sincronização de Locais de Estoque: Sankhya (TGFLOC) → Odoo (stock.location).
+
+Lê os locais de estoque do Sankhya via SQL e realiza upsert no modelo
+``stock.location`` do Odoo, preservando a hierarquia pai/filho.
+
+O processo é dividido em dois passos para evitar violações de integridade
+referencial ao criar locais cujo pai ainda não existe:
+
+- **Passo A** — upsert base: cria ou atualiza todos os locais usando o
+  depósito padrão (``WH/Stock``) como ``location_id`` provisório. Os locais
+  são ordenados pelo campo GRAU antes do processamento.
+- **Passo B** — reconciliação de hierarquia: para cada local, busca o ID
+  do pai (no mapa local ou via barcode) e atualiza ``location_id``.
+
+O CODLOCAL é armazenado no campo ``barcode`` do ``stock.location``, o que
+permite localizar registros existentes de forma inequívoca.
+
+Antes do Passo A é feita uma validação da hierarquia de origem para
+detectar auto-referências, órfãos e ciclos nos dados do Sankhya.
+
+Mapeamento principal:
+    - CODLOCAL    → barcode (chave de busca) e campo de chave externa (se disponível)
+    - DESCRLOCAL  → name
+    - CODLOCALPAI → location_id (via mapa local ou busca por barcode)
+    - GRAU        → campo customizado de grau hierárquico (se disponível)
+
+Pré-requisito:
+    - Pelo menos um depósito (``stock.warehouse``) configurado no Odoo.
+
+Uso::
+
+    python Produtos/sincronizar_locais.py
 """
 from __future__ import annotations
 
@@ -49,6 +80,14 @@ SANKHYA_BASE_URL = os.getenv("SANKHYA_AUTH_BASE_URL", "https://api.sankhya.com.b
 SANKHYA_X_TOKEN = os.getenv("SANKHYA_TOKEN", "")
 
 def criar_gateway_client() -> GatewayClient:
+    """Autentica no Sankhya via OAuth2 e retorna um ``GatewayClient`` pronto.
+
+    Returns:
+        Instância de ``GatewayClient`` autenticada.
+
+    Raises:
+        RuntimeError: Se as credenciais Sankhya não estiverem definidas no ``.env``.
+    """
     oauth = OAuthClient(base_url=SANKHYA_BASE_URL, token=SANKHYA_X_TOKEN)
     if not SANKHYA_CLIENT_ID or not SANKHYA_CLIENT_SECRET:
         raise RuntimeError("Credenciais Sankhya não encontradas no .env")
@@ -57,11 +96,34 @@ def criar_gateway_client() -> GatewayClient:
     return GatewayClient(session)
 
 def carregar_sql(caminho: Path) -> str:
+    """Lê e retorna o conteúdo de um arquivo SQL.
+
+    Args:
+        caminho: Caminho para o arquivo ``.sql``.
+
+    Returns:
+        Conteúdo do arquivo como string (sem espaços nas extremidades).
+
+    Raises:
+        FileNotFoundError: Se o arquivo não existir no caminho informado.
+    """
     if not caminho.exists():
         raise FileNotFoundError(f"Arquivo SQL não encontrado: {caminho}")
     return caminho.read_text(encoding="utf-8").strip()
 
 def buscar_dados_sankhya(client: GatewayClient, sql: str) -> list[dict[str, Any]]:
+    """Executa o SQL no Sankhya via ``DbExplorerSP.executeQuery`` e retorna os registros.
+
+    Args:
+        client: ``GatewayClient`` já autenticado.
+        sql:    Consulta SQL a executar.
+
+    Returns:
+        Lista de dicionários com os dados retornados pelo Sankhya.
+
+    Raises:
+        Exception: Se a resposta indicar erro.
+    """
     response = client.execute_service("DbExplorerSP.executeQuery", {"sql": sql})
     if not GatewayClient.is_success(response):
         raise Exception(GatewayClient.get_error_message(response))
@@ -73,6 +135,15 @@ def buscar_dados_sankhya(client: GatewayClient, sql: str) -> list[dict[str, Any]
     return [dict(zip(col_names, row)) for row in rows]
 
 def obter_campos_modelo(conexao: OdooConexao, modelo: str) -> dict[str, Any]:
+    """Retorna os metadados dos campos de um modelo Odoo, com cache.
+
+    Args:
+        conexao: Conexão autenticada com o Odoo.
+        modelo:  Nome técnico do modelo (ex.: ``stock.location``).
+
+    Returns:
+        Dicionário ``{nome_campo: metadados}`` conforme retornado por ``fields_get``.
+    """
     if modelo in FIELDS_CACHE:
         return FIELDS_CACHE[modelo]
     campos = conexao.executar(modelo, "fields_get")
@@ -80,12 +151,37 @@ def obter_campos_modelo(conexao: OdooConexao, modelo: str) -> dict[str, Any]:
     return campos
 
 def primeiro_campo_disponivel(campos: dict[str, Any], candidatos: list[str], tipos: tuple[str, ...]) -> str | None:
+    """Retorna o primeiro campo da lista ``candidatos`` que existe no modelo e tem o tipo correto.
+
+    Usado para selecionar adaptativamente o campo de chave externa, campo de código
+    pai ou campo de grau, dependendo de quais campos customizados estão disponíveis
+    na instalação Odoo do cliente.
+
+    Args:
+        campos:     Metadados dos campos do modelo (retorno de ``fields_get``).
+        candidatos: Lista de nomes de campo em ordem de preferência.
+        tipos:      Tipos aceitos (ex.: ``("char", "integer")``).
+
+    Returns:
+        Nome do primeiro campo compatível, ou ``None`` se nenhum for encontrado.
+    """
     for nome in candidatos:
         if nome in campos and campos[nome].get("type") in tipos:
             return nome
     return None
 
 def validar_hierarquia_origem(locais: list[dict[str, Any]]) -> tuple[int, int, int]:
+    """Valida a hierarquia dos locais vindos do Sankhya antes de carregar no Odoo.
+
+    Detecta auto-referências (CODLOCALPAI == CODLOCAL), órfãos (pai não existe
+    na lista) e ciclos na cadeia de dependências pai/filho.
+
+    Args:
+        locais: Lista de dicionários com os dados dos locais do Sankhya.
+
+    Returns:
+        Tupla ``(auto_referencia, orfaos, ciclos)`` com as contagens de cada anomalia.
+    """
     codigos = {str(l.get("CODLOCAL", "")).strip() for l in locais}
     mapa_pai: dict[str, str] = {}
     auto_referencia = 0
@@ -130,6 +226,25 @@ def mapear_local(
     campo_pai_staging: str | None,
     campo_grau: str | None,
 ) -> dict[str, Any]:
+    """Monta o dicionário de valores para criar ou atualizar um ``stock.location``.
+
+    Define o ``name`` (DESCRLOCAL), ``barcode`` (CODLOCAL), ``usage`` como
+    ``internal`` e ``active`` como ``True``. Se campos customizados estiverem
+    disponíveis, grava também o código Sankhya, o código do pai (staging) e
+    o grau hierárquico. Define ``location_id`` com o ``parent_id`` fornecido
+    (inicialmente o depósito padrão; reconciliado no Passo B).
+
+    Args:
+        dados:             Dicionário com os campos do local (CODLOCAL, DESCRLOCAL,
+                           CODLOCALPAI, GRAU).
+        parent_id:         ID do local pai a usar no Passo A (depósito padrão).
+        campo_chave:       Campo customizado de chave externa Sankhya, ou ``None``.
+        campo_pai_staging: Campo customizado de código do pai Sankhya, ou ``None``.
+        campo_grau:        Campo customizado de grau hierárquico, ou ``None``.
+
+    Returns:
+        Dicionário de valores pronto para ``criar`` ou ``atualizar`` no Odoo.
+    """
     vals: dict[str, Any] = {
         "name": dados.get("DESCRLOCAL", "Local Sankhya"),
         "barcode": str(dados.get("CODLOCAL", "")),
@@ -151,6 +266,20 @@ def mapear_local(
     return vals
 
 def sincronizar_local(conexao: OdooConexao, dados: dict[str, Any]) -> tuple[str, int]:
+    """Cria ou atualiza um ``stock.location`` no Odoo.
+
+    Localiza o registro existente pelo ``barcode`` (= CODLOCAL). Se encontrado,
+    atualiza; caso contrário, cria um novo.
+
+    Args:
+        conexao: Conexão autenticada com o Odoo.
+        dados:   Dicionário de valores mapeado por :func:`mapear_local`
+                 (deve conter a chave ``barcode``).
+
+    Returns:
+        Tupla ``(acao, id)`` onde ``acao`` é ``'criado'`` ou ``'atualizado'``
+        e ``id`` é o ID do registro no Odoo.
+    """
     modelo = "stock.location"
     # Busca por barcode (que armazena o CODLOCAL)
     # ATENÇÃO: search_read do wrapper usa 'limite', não 'limit'
@@ -167,6 +296,16 @@ def sincronizar_local(conexao: OdooConexao, dados: dict[str, Any]) -> tuple[str,
 
 
 def buscar_local_por_codigo(conexao: OdooConexao, codlocal: str) -> dict[str, Any] | None:
+    """Localiza um ``stock.location`` pelo código do local (``barcode`` = CODLOCAL).
+
+    Args:
+        conexao:  Conexão autenticada com o Odoo.
+        codlocal: Código do local de estoque do Sankhya.
+
+    Returns:
+        Primeiro registro encontrado (com ``id``, ``name`` e ``location_id``),
+        ou ``None`` se não existir.
+    """
     codlocal = str(codlocal).strip()
     if not codlocal:
         return None
@@ -188,6 +327,18 @@ def obter_local_estoque_padrao(conexao: OdooConexao) -> int:
 
 
 def ordenar_locais(local: dict[str, Any]) -> tuple[int, str]:
+    """Chave de ordenação para processar locais do menor grau para o maior.
+
+    Locais com menor GRAU são criados primeiro, garantindo que os pais
+    existam antes dos filhos no Passo A.
+
+    Args:
+        local: Dicionário com os dados de um local do Sankhya.
+
+    Returns:
+        Tupla ``(grau_int, codigo)`` usada como chave de comparação.
+        Locais sem GRAU numérico válido recebem grau ``999999``.
+    """
     grau = local.get("GRAU")
     try:
         grau_int = int(grau)
@@ -196,7 +347,22 @@ def ordenar_locais(local: dict[str, Any]) -> tuple[int, str]:
     codigo = str(local.get("CODLOCAL", ""))
     return grau_int, codigo
 
-def executar():
+def executar() -> None:
+    """Ponto de entrada principal da sincronização de locais de estoque.
+
+    Executa o fluxo completo em quatro etapas:
+
+    1. **Sankhya** — autentica e executa ``loginSNK/sql/locais.sql``.
+    2. **Odoo** — conecta, obtém o depósito padrão, introspecciona campos e
+       valida a hierarquia de origem.
+    3. **Passo A** — upsert base de todos os locais (ordenados por GRAU),
+       usando o depósito padrão como ``location_id`` provisório.
+    4. **Passo B** — reconcilia a hierarquia pai/filho em ``location_id``.
+
+    Exibe barra de progresso (``rich``) para cada passo e, ao final, um
+    painel de resumo com contadores de criados, atualizados, erros,
+    pais atualizados, órfãos e anomalias da origem.
+    """
     console.print(Panel.fit("[bold blue]🏢 Sincronização de Locais[/bold blue]"))
     
     # 1. Sankhya

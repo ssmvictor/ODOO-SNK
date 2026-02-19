@@ -2,11 +2,28 @@
 """
 Registrar Não Conformidade (NC) na Fundição
 =============================================
-Cria um alerta de qualidade (quality.alert) no Odoo para registrar
+Cria um alerta de qualidade (``quality.alert``) no Odoo para registrar
 erros/defeitos durante a produção no setor de Fundição.
 
-Uso interativo: python producao/registrar_nc.py
-Uso direto:     python producao/registrar_nc.py --titulo "Bolhas na peça X" --motivo "Bolhas" --prioridade 2
+Modos de uso:
+
+- **Interativo** (sem argumentos): apresenta menus para selecionar motivo,
+  fundidor, título, descrição e prioridade.
+- **Direto** (com ``--titulo`` e ``--motivo``): registra a NC diretamente
+  via linha de comando, sem interação.
+- **Listagem** (com ``--listar``): exibe as últimas NCs registradas.
+
+Uso interativo::
+
+    python producao/registrar_nc.py
+
+Uso direto::
+
+    python producao/registrar_nc.py --titulo "Bolhas na peça X" --motivo "Bolhas" --prioridade 2
+
+Listar NCs::
+
+    python producao/registrar_nc.py --listar
 """
 
 import os
@@ -26,7 +43,14 @@ console = Console()
 
 
 def get_quality_reasons(conn: OdooConexao) -> list[dict]:
-    """Busca todos os motivos de não conformidade."""
+    """Busca todos os motivos de não conformidade cadastrados (``quality.reason``).
+
+    Args:
+        conn: Conexão autenticada com o Odoo.
+
+    Returns:
+        Lista de dicionários com ``id`` e ``name`` dos motivos, ordenados por nome.
+    """
     return conn.search_read(
         'quality.reason',
         campos=['id', 'name'],
@@ -36,7 +60,18 @@ def get_quality_reasons(conn: OdooConexao) -> list[dict]:
 
 
 def get_quality_team(conn: OdooConexao, team_name: str = "Qualidade Fundição") -> int:
-    """Busca a equipe de qualidade da Fundição."""
+    """Busca a equipe de qualidade da Fundição (``quality.alert.team``).
+
+    Tenta busca por ``ilike team_name``. Se não encontrar, utiliza qualquer
+    equipe disponível como fallback.
+
+    Args:
+        conn:      Conexão autenticada com o Odoo.
+        team_name: Nome (parcial) da equipe a buscar. Padrão: ``'Qualidade Fundição'``.
+
+    Returns:
+        ID inteiro da equipe encontrada, ou ``0`` se nenhuma equipe existir.
+    """
     teams = conn.search_read(
         'quality.alert.team',
         dominio=[['name', 'ilike', team_name]],
@@ -56,7 +91,18 @@ def get_quality_team(conn: OdooConexao, team_name: str = "Qualidade Fundição")
 
 
 def get_employees_fundicao(conn: OdooConexao) -> list[dict]:
-    """Busca funcionários do setor Fundição."""
+    """Busca os funcionários do setor de Fundição (``hr.employee``).
+
+    Localiza o departamento cujo nome contém ``'fundi'`` (case-insensitive)
+    e retorna todos os funcionários vinculados a ele.
+
+    Args:
+        conn: Conexão autenticada com o Odoo.
+
+    Returns:
+        Lista de dicionários com ``id``, ``name`` e ``barcode`` dos funcionários,
+        ordenados por nome. Retorna lista vazia se o departamento não for encontrado.
+    """
     depts = conn.search_read(
         'hr.department',
         dominio=[['name', 'ilike', 'fundi']],
@@ -76,7 +122,15 @@ def get_employees_fundicao(conn: OdooConexao) -> list[dict]:
 
 
 def interactive_mode(conn: OdooConexao):
-    """Modo interativo para registrar NC."""
+    """Modo interativo para registrar uma não conformidade passo a passo.
+
+    Exibe os motivos disponíveis e os fundidores do setor, solicita dados
+    via prompts ``rich`` (motivo, fundidor, título, descrição, prioridade)
+    e cria o ``quality.alert`` no Odoo.
+
+    Args:
+        conn: Conexão autenticada com o Odoo.
+    """
     console.print("\n[bold cyan]REGISTRAR NÃO CONFORMIDADE - FUNDIÇÃO[/bold cyan]")
     console.print("=" * 50)
     
@@ -151,7 +205,18 @@ def interactive_mode(conn: OdooConexao):
 
 
 def direct_mode(conn: OdooConexao, titulo: str, motivo: str, prioridade: str = "1", descricao: str = ""):
-    """Modo direto (linha de comando)."""
+    """Registra uma não conformidade diretamente via argumentos de linha de comando.
+
+    Busca o motivo pelo nome exato (case-insensitive). Se não encontrar,
+    lista os motivos disponíveis e encerra sem criar o alerta.
+
+    Args:
+        conn:       Conexão autenticada com o Odoo.
+        titulo:     Título do alerta de qualidade.
+        motivo:     Nome exato do ``quality.reason`` a utilizar.
+        prioridade: Prioridade em string (``'0'``–``'3'``). Padrão: ``'1'``.
+        descricao:  Descrição opcional da NC.
+    """
     # Buscar motivo por nome
     reasons = get_quality_reasons(conn)
     reason_match = [r for r in reasons if r['name'].lower() == motivo.lower()]
@@ -182,7 +247,12 @@ def direct_mode(conn: OdooConexao, titulo: str, motivo: str, prioridade: str = "
 
 
 def list_ncs(conn: OdooConexao, limit: int = 20):
-    """Lista as últimas NCs registradas."""
+    """Exibe as últimas NCs registradas em uma tabela ``rich``.
+
+    Args:
+        conn:  Conexão autenticada com o Odoo.
+        limit: Número máximo de NCs a exibir (padrão: ``20``).
+    """
     alerts = conn.search_read(
         'quality.alert',
         campos=['id', 'name', 'reason_id', 'priority', 'stage_id', 'create_date'],
@@ -221,6 +291,16 @@ def list_ncs(conn: OdooConexao, limit: int = 20):
 
 
 def main():
+    """Ponto de entrada principal do registro de não conformidades.
+
+    Processa os argumentos de linha de comando e despacha para o modo adequado:
+
+    - ``--listar``: chama :func:`list_ncs`.
+    - ``--titulo`` + ``--motivo``: chama :func:`direct_mode`.
+    - Sem argumentos: chama :func:`interactive_mode`.
+
+    Conecta ao Odoo antes de chamar qualquer modo.
+    """
     parser = argparse.ArgumentParser(description="Registrar Não Conformidade na Fundição")
     parser.add_argument('--titulo', '-t', help='Título da NC')
     parser.add_argument('--motivo', '-m', help='Nome do motivo (quality.reason)')

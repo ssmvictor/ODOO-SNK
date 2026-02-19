@@ -1,7 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Sincronização de Estoque: Sankhya (TGFEST) → Odoo (stock.quant)
+Sincronização de Estoque: Sankhya (TGFEST) → Odoo (stock.quant).
+
+Lê os saldos de estoque do Sankhya via SQL (``DbExplorerSP.executeQuery``)
+e ajusta as quantidades no modelo ``stock.quant`` do Odoo 19 Enterprise.
+
+Pré-requisitos:
+    - Produtos já sincronizados via ``sincronizar_produtos.py``
+      (os produtos são localizados pelo ``default_code``).
+    - Locais de estoque já sincronizados via ``sincronizar_locais.py``
+      (os locais são localizados pelo ``barcode`` = CODLOCAL).
+
+Fluxo:
+    1. Autentica no Sankhya e executa ``loginSNK/sql/estoque.sql``.
+    2. Conecta ao Odoo e pré-carrega mapa de produtos em cache.
+    3. Para cada registro: faz upsert em ``stock.quant`` e aplica
+       ``action_apply_inventory`` (com fallback para ``apply_inventory``).
+
+Mapeamento:
+    - CODPROD  → product_id   (via default_code em product.product)
+    - CODLOCAL → location_id  (via barcode em stock.location)
+    - ESTOQUE  → inventory_quantity
+
+Uso::
+
+    python Produtos/sincronizar_estoque.py
 """
 from __future__ import annotations
 
@@ -26,7 +50,11 @@ from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskPr
 
 
 def configurar_saida_utf8() -> None:
-    """Forca UTF-8 na saida para evitar falhas com emoji no Windows."""
+    """Força a codificação UTF-8 nos streams ``stdout`` e ``stderr``.
+
+    Necessário no Windows para evitar erros de encoding ao exibir
+    emojis e caracteres especiais via ``rich``.
+    """
     for stream_name in ("stdout", "stderr"):
         stream = getattr(sys, stream_name, None)
         if hasattr(stream, "reconfigure"):
@@ -48,6 +76,14 @@ SANKHYA_BASE_URL = os.getenv("SANKHYA_AUTH_BASE_URL", "https://api.sankhya.com.b
 SANKHYA_X_TOKEN = os.getenv("SANKHYA_TOKEN", "")
 
 def criar_gateway_client() -> GatewayClient:
+    """Autentica no Sankhya via OAuth2 e retorna um ``GatewayClient`` pronto.
+
+    Returns:
+        Instância de ``GatewayClient`` autenticada.
+
+    Raises:
+        RuntimeError: Se as credenciais Sankhya não estiverem no ``.env``.
+    """
     oauth = OAuthClient(base_url=SANKHYA_BASE_URL, token=SANKHYA_X_TOKEN)
     if not SANKHYA_CLIENT_ID or not SANKHYA_CLIENT_SECRET:
         raise RuntimeError("Credenciais Sankhya não encontradas no .env")
@@ -56,11 +92,34 @@ def criar_gateway_client() -> GatewayClient:
     return GatewayClient(session)
 
 def carregar_sql(caminho: Path) -> str:
+    """Lê e retorna o conteúdo de um arquivo SQL.
+
+    Args:
+        caminho: Caminho para o arquivo ``.sql``.
+
+    Returns:
+        Conteúdo do arquivo como string (sem espaços nas extremidades).
+
+    Raises:
+        FileNotFoundError: Se o arquivo não existir no caminho informado.
+    """
     if not caminho.exists():
         raise FileNotFoundError(f"Arquivo SQL não encontrado: {caminho}")
     return caminho.read_text(encoding="utf-8").strip()
 
 def buscar_dados_sankhya(client: GatewayClient, sql: str) -> list[dict[str, Any]]:
+    """Executa o SQL no Sankhya via ``DbExplorerSP.executeQuery`` e retorna os registros.
+
+    Args:
+        client: ``GatewayClient`` já autenticado.
+        sql:    Consulta SQL a executar.
+
+    Returns:
+        Lista de dicionários com os dados retornados pelo Sankhya.
+
+    Raises:
+        Exception: Se a resposta indicar erro.
+    """
     response = client.execute_service("DbExplorerSP.executeQuery", {"sql": sql})
     if not GatewayClient.is_success(response):
         raise Exception(GatewayClient.get_error_message(response))
@@ -76,6 +135,17 @@ CACHE_PRODUTOS = {}
 CACHE_LOCAIS = {}
 
 def carregar_mapa_produtos_odoo(conexao: OdooConexao, lote: int = 1000) -> dict[str, int]:
+    """Pré-carrega um mapa ``{default_code: product_id}`` para ``product.product``.
+
+    Itera em lotes para suportar catálogos grandes, evitando timeout na API.
+
+    Args:
+        conexao: Conexão autenticada com o Odoo.
+        lote:    Tamanho do lote de registros por chamada. Padrão: ``1000``.
+
+    Returns:
+        Dicionário mapeando o código interno do produto ao ID de ``product.product``.
+    """
     mapa: dict[str, int] = {}
     offset = 0
 
@@ -102,6 +172,19 @@ def carregar_mapa_produtos_odoo(conexao: OdooConexao, lote: int = 1000) -> dict[
     return mapa
 
 def buscar_id_produto(conexao: OdooConexao, codprod: str) -> int | None:
+    """Busca o ID de ``product.product`` pelo código interno (``default_code``).
+
+    Consulta primeiro o cache global ``CACHE_PRODUTOS`` (populado por
+    :func:`carregar_mapa_produtos_odoo`). Faz chamada à API apenas se o
+    produto não estiver em cache (ex: produto recém-criado).
+
+    Args:
+        conexao: Conexão autenticada com o Odoo.
+        codprod: Código interno do produto (CODPROD no Sankhya).
+
+    Returns:
+        ID inteiro do ``product.product``, ou ``None`` se não encontrado.
+    """
     if str(codprod) in CACHE_PRODUTOS: return CACHE_PRODUTOS[str(codprod)]
     # Fallback caso não esteja no cache carregado (ex: novos produtos)
     # ATENÇÃO: usa 'limite'
@@ -113,6 +196,17 @@ def buscar_id_produto(conexao: OdooConexao, codprod: str) -> int | None:
     return None
 
 def buscar_id_local(conexao: OdooConexao, codlocal: str) -> int | None:
+    """Busca o ID de ``stock.location`` pelo código do local (``barcode``).
+
+    Utiliza cache global ``CACHE_LOCAIS`` para evitar chamadas repetidas.
+
+    Args:
+        conexao:  Conexão autenticada com o Odoo.
+        codlocal: Código do local de estoque do Sankhya (armazenado como ``barcode``).
+
+    Returns:
+        ID inteiro do ``stock.location``, ou ``None`` se não encontrado.
+    """
     if str(codlocal) in CACHE_LOCAIS: return CACHE_LOCAIS[str(codlocal)]
     # Busca por barcode, usa 'limite'
     res = conexao.search_read("stock.location", [["barcode", "=", str(codlocal)]], ["id"], limite=1)
@@ -123,6 +217,26 @@ def buscar_id_local(conexao: OdooConexao, codlocal: str) -> int | None:
     return None
 
 def atualizar_estoque(conexao: OdooConexao, dados: dict[str, Any]) -> str:
+    """Cria ou atualiza um ``stock.quant`` e aplica o ajuste de inventário.
+
+    Localiza o produto pelo ``CODPROD`` e o local pelo ``CODLOCAL``. Se algum
+    dos dois não for encontrado, retorna uma string de status sem lançar exceção.
+    Após o upsert do ``stock.quant``, chama ``action_apply_inventory``
+    (com fallback para ``apply_inventory`` em versões alternativas do Odoo).
+
+    Args:
+        conexao: Conexão autenticada com o Odoo.
+        dados:   Dicionário com os campos ``CODPROD``, ``CODLOCAL`` e ``ESTOQUE``
+                 vindos do Sankhya.
+
+    Returns:
+        Uma das strings: ``'criado'``, ``'atualizado'``,
+        ``'produto_nao_encontrado'`` ou ``'local_nao_encontrado'``.
+
+    Raises:
+        RuntimeError: Se ``action_apply_inventory`` e o fallback ``apply_inventory``
+            falharem simultaneamente.
+    """
     codprod = dados.get("CODPROD")
     codlocal = dados.get("CODLOCAL")
     estoque = float(dados.get("ESTOQUE", 0.0))
@@ -172,7 +286,20 @@ def atualizar_estoque(conexao: OdooConexao, dados: dict[str, Any]) -> str:
         
     return acao
 
-def executar():
+def executar() -> None:
+    """Ponto de entrada principal da sincronização de estoque.
+
+    Executa o fluxo completo em três etapas:
+
+    1. **Sankhya** — autentica via OAuth2 e executa ``loginSNK/sql/estoque.sql``,
+       obtendo os saldos de estoque (CODPROD, CODLOCAL, ESTOQUE).
+    2. **Odoo** — conecta e pré-carrega o cache de produtos para performance.
+    3. **Sincronização** — para cada registro do Sankhya, chama
+       :func:`atualizar_estoque` e exibe barra de progresso com ``rich``.
+
+    Ao final, exibe um painel de resumo com os contadores:
+    processados, ignorados (produto ou local não encontrado) e erros.
+    """
     console.print(Panel.fit("[bold cyan]📦 Sincronização de Estoque[/bold cyan]"))
     
     # 1. Sankhya

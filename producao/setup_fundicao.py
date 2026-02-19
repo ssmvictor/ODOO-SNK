@@ -2,13 +2,18 @@
 """
 Setup do Setor de Fundição no Odoo
 ===================================
-Este script realiza:
-1. Verifica/cria o departamento "Fundição" 
-2. Lista os fundidores já cadastrados no departamento
-3. Cadastra não conformidades (quality.reason) específicas da fundição
-4. Cria uma equipe de qualidade "Fundição" para rastreamento de alertas
+Configura os recursos necessários para o setor de fundição/louças no Odoo:
 
-Uso: python producao/setup_fundicao.py
+1. Verifica ou cria o departamento "Fundição/louças".
+2. Lista os fundidores já cadastrados no departamento.
+3. Cadastra os motivos de não conformidade (``quality.reason``) específicos
+   da fundição definidos na lista :data:`NAO_CONFORMIDADES`.
+4. Cria a equipe de qualidade "Qualidade Fundição" (``quality.alert.team``).
+5. Salva o resultado em ``producao/setup_fundicao_result.json``.
+
+Uso::
+
+    python producao/setup_fundicao.py
 """
 
 import os
@@ -49,7 +54,20 @@ DEPT_NAME = "Fundição/louças"  # Nome do departamento já existente no Odoo
 
 
 def get_or_create_department(conn: OdooConexao, name: str) -> int:
-    """Busca ou cria o departamento."""
+    """Busca ou cria o departamento ``hr.department`` pelo nome.
+
+    Tenta primeiro a busca exata pelo nome. Se não encontrar, faz uma busca
+    parcial com ``ilike 'fundi'`` para localizar o departamento de fundição
+    mesmo com nome ligeiramente diferente. Se nenhuma busca encontrar resultado,
+    cria o departamento com o nome fornecido.
+
+    Args:
+        conn: Conexão autenticada com o Odoo.
+        name: Nome do departamento a buscar ou criar.
+
+    Returns:
+        ID inteiro do ``hr.department`` encontrado ou criado.
+    """
     depts = conn.search_read(
         'hr.department',
         dominio=[['name', '=', name]],
@@ -80,7 +98,16 @@ def get_or_create_department(conn: OdooConexao, name: str) -> int:
 
 
 def list_fundidores(conn: OdooConexao, dept_id: int) -> list:
-    """Lista todos os funcionários do departamento Fundição."""
+    """Lista todos os funcionários do departamento de fundição.
+
+    Args:
+        conn:    Conexão autenticada com o Odoo.
+        dept_id: ID do ``hr.department`` do setor de fundição.
+
+    Returns:
+        Lista de dicionários com os campos ``id``, ``name``, ``barcode``,
+        ``job_title`` e ``active`` dos funcionários do departamento.
+    """
     employees = conn.search_read(
         'hr.employee',
         dominio=[['department_id', '=', dept_id]],
@@ -92,7 +119,19 @@ def list_fundidores(conn: OdooConexao, dept_id: int) -> list:
 
 
 def setup_quality_reasons(conn: OdooConexao, reasons: list[str]) -> dict[str, int]:
-    """Cadastra os motivos de não conformidade (quality.reason)."""
+    """Cadastra os motivos de não conformidade em ``quality.reason``.
+
+    Para cada nome na lista ``reasons``, verifica se já existe um motivo com
+    esse nome (comparação case-insensitive). Se existir, reutiliza; se não,
+    cria um novo registro.
+
+    Args:
+        conn:    Conexão autenticada com o Odoo.
+        reasons: Lista de nomes de motivos de não conformidade a cadastrar.
+
+    Returns:
+        Dicionário ``{nome_motivo: id}`` com todos os motivos processados.
+    """
     result = {}
     
     # Buscar motivos existentes
@@ -117,7 +156,15 @@ def setup_quality_reasons(conn: OdooConexao, reasons: list[str]) -> dict[str, in
 
 
 def get_or_create_quality_team(conn: OdooConexao, team_name: str) -> int:
-    """Busca ou cria uma equipe de qualidade."""
+    """Busca ou cria uma equipe de qualidade (``quality.alert.team``).
+
+    Args:
+        conn:      Conexão autenticada com o Odoo.
+        team_name: Nome exato da equipe de qualidade.
+
+    Returns:
+        ID inteiro do ``quality.alert.team`` encontrado ou criado.
+    """
     teams = conn.search_read(
         'quality.alert.team',
         dominio=[['name', '=', team_name]],
@@ -143,7 +190,21 @@ def create_quality_alert(
     description: str = "",
     priority: str = "1"
 ) -> int:
-    """Cria um alerta de qualidade (não conformidade)."""
+    """Cria um alerta de qualidade (``quality.alert``) para registrar uma não conformidade.
+
+    Args:
+        conn:          Conexão autenticada com o Odoo.
+        title:         Título do alerta (campo ``name``).
+        team_id:       ID da equipe de qualidade responsável.
+        reason_id:     ID do motivo de não conformidade (``quality.reason``).
+        employee_name: Nome do funcionário associado à NC (opcional).
+        description:   Descrição detalhada da NC (opcional).
+        priority:      Prioridade em string: ``'0'``=Normal, ``'1'``=Baixa,
+                       ``'2'``=Alta, ``'3'``=Muito Alta. Padrão: ``'1'``.
+
+    Returns:
+        ID inteiro do ``quality.alert`` criado.
+    """
     vals = {
         'name': title,
         'team_id': team_id,
@@ -158,6 +219,18 @@ def create_quality_alert(
 
 
 def main():
+    """Ponto de entrada principal do setup da fundição.
+
+    Conecta ao Odoo e executa as quatro etapas de configuração:
+
+    1. Busca ou cria o departamento definido em :data:`DEPT_NAME`.
+    2. Lista e exibe os fundidores do departamento.
+    3. Cadastra os motivos de NC da lista :data:`NAO_CONFORMIDADES`.
+    4. Busca ou cria a equipe de qualidade "Qualidade Fundição".
+
+    Ao final, exibe um resumo e salva o resultado em
+    ``producao/setup_fundicao_result.json``.
+    """
     console.print(Panel.fit(
         "[bold white]SETUP FUNDIÇÃO - Odoo[/bold white]\n"
         "Departamento, Fundidores e Não Conformidades",
