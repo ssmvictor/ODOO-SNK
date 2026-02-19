@@ -45,6 +45,7 @@ console = Console()
 FIELDS_CACHE: dict[str, dict[str, Any]] = {}
 COUNTRY_CACHE: dict[str, int | None] = {}
 STATE_CACHE: dict[str, int | None] = {}
+TAG_CACHE: dict[str, int | None] = {}
 
 SANKHYA_CLIENT_ID = os.getenv("SANKHYA_CLIENT_ID", "")
 SANKHYA_CLIENT_SECRET = os.getenv("SANKHYA_CLIENT_SECRET", "")
@@ -103,6 +104,10 @@ def limpar_documento(valor: Any) -> str:
     return "".join(ch for ch in bruto if ch.isdigit())
 
 
+def flag_sankhya(valor: Any) -> bool:
+    return str(valor or "").strip().upper() == "S"
+
+
 def resolve_country_id(conexao_odoo: OdooConexao, sigla_pais: Any) -> int | None:
     sigla = str(sigla_pais or "").strip().upper()
     if not sigla:
@@ -140,6 +145,28 @@ def resolve_state_id(conexao_odoo: OdooConexao, uf_sigla: Any, country_id: int |
     return state_id
 
 
+def resolver_tag_parceiro(conexao_odoo: OdooConexao, nome_tag: str) -> int | None:
+    nome = str(nome_tag or "").strip()
+    if not nome:
+        return None
+    chave = nome.upper()
+    if chave in TAG_CACHE:
+        return TAG_CACHE[chave]
+
+    res = conexao_odoo.search_read("res.partner.category", [["name", "=", nome]], ["id"], limite=1)
+    if res:
+        tag_id = int(res[0]["id"])
+        TAG_CACHE[chave] = tag_id
+        return tag_id
+
+    try:
+        tag_id = int(conexao_odoo.criar("res.partner.category", {"name": nome}))
+    except Exception:
+        tag_id = None
+    TAG_CACHE[chave] = tag_id
+    return tag_id
+
+
 def mapear_parceiro(
     parc_snk: dict[str, Any],
     conexao_odoo: OdooConexao,
@@ -164,7 +191,7 @@ def mapear_parceiro(
     email = str(parc_snk.get("EMAIL") or "").strip()
     telefone = str(parc_snk.get("TELEFONE") or "").strip()
     celular = str(parc_snk.get("FAX") or "").strip()
-    ie = str(parc_snk.get("IDENTINSCESTAD") or "").strip()
+    ie = str(parc_snk.get("INSCESTADNAUF") or parc_snk.get("IDENTINSCESTAD") or "").strip()
 
     country_id = resolve_country_id(conexao_odoo, parc_snk.get("PAIS_SIGLA"))
     state_id = resolve_state_id(conexao_odoo, parc_snk.get("UF_SIGLA"), country_id)
@@ -202,8 +229,10 @@ def mapear_parceiro(
         dados["phone"] = telefone
     if celular:
         dados["mobile"] = celular
-    if ie:
-        if "l10n_br_ie" in campos_partner:
+    if ie and ie.upper() != "ISENTO":
+        if "l10n_br_ie_code" in campos_partner:
+            dados["l10n_br_ie_code"] = ie
+        elif "l10n_br_ie" in campos_partner:
             dados["l10n_br_ie"] = ie
         elif "x_ie" in campos_partner and campos_partner["x_ie"].get("type") in ("char", "text"):
             dados["x_ie"] = ie
@@ -217,11 +246,11 @@ def mapear_parceiro(
         if "vat" in campos_partner:
             dados["vat"] = cnpj_cpf
         doc_limpo = limpar_documento(cnpj_cpf)
-        if "l10n_br_cnpj_cpf" in campos_partner and doc_limpo:
+        if "l10n_br_cnpj_cpf" in campos_partner and len(doc_limpo) in (11, 14):
             dados["l10n_br_cnpj_cpf"] = doc_limpo
 
-    is_cliente = str(parc_snk.get("CLIENTE", "N")).strip().upper() == "S"
-    is_fornecedor = str(parc_snk.get("FORNECEDOR", "N")).strip().upper() == "S"
+    is_cliente = flag_sankhya(parc_snk.get("CLIENTE", "N"))
+    is_fornecedor = flag_sankhya(parc_snk.get("FORNECEDOR", "N"))
 
     if "customer_rank" in campos_partner:
         dados["customer_rank"] = 1 if is_cliente else 0
@@ -232,7 +261,28 @@ def mapear_parceiro(
     if "supplier" in campos_partner:
         dados["supplier"] = is_fornecedor
 
-    return dados
+    tag_ids: list[int] = []
+    papeis = [
+        ("CLIENTE", flag_sankhya(parc_snk.get("CLIENTE", "N"))),
+        ("FORNECEDOR", flag_sankhya(parc_snk.get("FORNECEDOR", "N"))),
+        ("VENDEDOR", flag_sankhya(parc_snk.get("VENDEDOR", "N"))),
+        ("TRANSPORTADORA", flag_sankhya(parc_snk.get("TRANSPORTADORA", "N"))),
+        ("MOTORISTA", flag_sankhya(parc_snk.get("MOTORISTA", "N"))),
+    ]
+    for nome_papel, ativo in papeis:
+        if not ativo:
+            continue
+        tag_id = resolver_tag_parceiro(conexao_odoo, nome_papel)
+        if tag_id:
+            tag_ids.append(tag_id)
+    if tag_ids and "category_id" in campos_partner:
+        dados["category_id"] = [(4, tid) for tid in tag_ids]
+
+    # Garante compatibilidade com diferentes versões/customizações do Odoo.
+    dados_filtrados = {k: v for k, v in dados.items() if k in campos_partner}
+    if "name" not in dados_filtrados:
+        dados_filtrados["name"] = nome_final
+    return dados_filtrados
 
 
 def buscar_parceiro_existente(
@@ -252,9 +302,9 @@ def buscar_parceiro_existente(
 def sincronizar_parceiro(
     conexao_odoo: OdooConexao,
     dados_odoo: dict[str, Any],
+    codigo: str,
     campo_chave_externa: str | None,
 ) -> tuple[str, int]:
-    codigo = str(dados_odoo.get("ref") or "").strip()
     existente = buscar_parceiro_existente(conexao_odoo, codigo, campo_chave_externa)
     if existente:
         partner_id = int(existente["id"])
@@ -309,7 +359,7 @@ def executar_sincronizacao() -> None:
             codigo = str(parc.get("CODPARC") or "").strip() or "?"
             try:
                 dados = mapear_parceiro(parc, conexao_odoo, campos_partner, campo_chave_externa)
-                acao, _partner_id = sincronizar_parceiro(conexao_odoo, dados, campo_chave_externa)
+                acao, _partner_id = sincronizar_parceiro(conexao_odoo, dados, codigo, campo_chave_externa)
                 if acao == "criado":
                     criados += 1
                 else:
