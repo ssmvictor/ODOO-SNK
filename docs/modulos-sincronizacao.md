@@ -20,12 +20,24 @@ Sincroniza produtos ativos do Sankhya (`TGFPRO`) para o modelo `product.template
 | `PESOBRUTO` | `weight` | Peso bruto |
 | `CODVOL` | `uom_id` / `uom_po_id` | Unidade de medida |
 | `USOPROD` | `type` / `is_storable` | `R` → `consu` (estocavel), `S` → `service` |
-| `NCM` | `ncm` / `l10n_br_ncm_id` | NCM fiscal (se campo disponivel) |
+| `NCM` | `ncm` / `l10n_br_ncm_code_id` | NCM fiscal (lookup por codigo mascarado `####.##.##`) |
+| `CODESPECST` | `l10n_br_cest_code` | CEST fiscal (7 digitos) |
+| `UNITRIBUTACAO` | `l10n_br_legal_uom_id` | Unidade tributavel legal (via `uom.uom`) |
+| `ORIGPROD` | `l10n_br_source_origin` | Origem fiscal (`0..8`) |
+| `TIPOITEMSPED` | `l10n_br_sped_type` | Tipo do item SPED (mapeado para selecao Odoo) |
+| `USOPROD` / `USOPROD_FISCAL` | `l10n_br_use_type` | Proposito de uso fiscal |
+| `TEMISS` | `l10n_br_taxable_is` | Indicador fiscal IS (quando informado) |
+| `CODTIPOPER_*` + `DESCROPER_*` | `l10n_br_operation_type_*_id` | TOP de venda/compra/PDV (derivado do historico `TGFITE` + `TGFCAB` + `TGFTOP`) |
 | `MARCA` | `product_brand_id` / `x_marca` | Marca (se campo disponivel) |
 | `CODLOCALPADRAO` | `x_local_padrao_id` | Local padrao de estoque (se campo disponivel) |
 | — | `list_price` | Fixo: `0.0` (preco definido por tabela de precos) |
 | — | `sale_ok` | Fixo: `False` |
 | — | `purchase_ok` | Fixo: `True` |
+
+**Configuracoes opcionais (.env):**
+- `SNK_UOM_TRIBUTAVEL_MAP_JSON`: sobrescreve conversao de unidade tributavel (ex.: `{"UNIDADE":"UN","KG":"KG"}`).
+- `SNK_TOP_OPERATION_MAP_JSON`: mapeia TOP Sankhya para operation type por contexto (`sales`, `purchases`, `pos`).
+  Exemplo: `{"sales":{"35":"standardSales"},"purchases":{"13":"standardPurchase","*":"standardPurchase"},"pos":{"*":"standardSales"}}` (aceita `id`, `name` ou `technical_name` do `l10n_br.operation.type`; chave `*` define fallback do contexto).
 
 **Logica de upsert:**
 - Busca pelo `default_code` (CODPROD)

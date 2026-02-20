@@ -1,31 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Sincronização de Produtos: Sankhya (TGFPRO) → Odoo (product.template).
+Sincronização de Produtos: Sankhya (TGFPRO) → Odoo (product.template)
 
-Lê os produtos ativos do Sankhya via SQL (``DbExplorerSP.executeQuery``)
-e cria ou atualiza os registros correspondentes no modelo
-``product.template`` do Odoo 19 Enterprise.
-
-Fluxo:
-    1. Autentica no Sankhya via OAuth2 e executa ``loginSNK/sql/produtos.sql``.
-    2. Conecta ao Odoo via OdooRPC.
-    3. Para cada produto: faz upsert baseado no ``default_code`` (CODPROD).
-
-Mapeamento principal:
-    - CODPROD       → default_code  (chave do upsert)
-    - DESCRPROD     → name
-    - REFFORN       → barcode
-    - PESOBRUTO     → weight
-    - CODVOL        → uom_id / uom_po_id
-    - USOPROD       → type / is_storable  (R → consu/True, S → service/False)
-    - NCM           → ncm / l10n_br_ncm_id  (se campo disponível no Odoo)
-    - MARCA         → product_brand_id / x_marca  (se campo disponível)
-    - CODLOCALPADRAO → x_local_padrao_id  (se campo disponível)
-
-Uso::
-
-    python Produtos/sincronizar_produtos.py
+Lê produtos ativos do Sankhya via SQL (DbExplorerSP) e
+cria/atualiza no Odoo via OdooRPC.
 """
 
 from __future__ import annotations
@@ -60,11 +39,7 @@ from rich import print as rprint
 
 
 def configurar_saida_utf8() -> None:
-    """Força a codificação UTF-8 nos streams ``stdout`` e ``stderr``.
-
-    Necessário no Windows para evitar erros de encoding ao exibir
-    emojis e caracteres especiais via ``rich``.
-    """
+    """Força UTF-8 na saída para evitar falhas com emoji no Windows."""
     for stream_name in ("stdout", "stderr"):
         stream = getattr(sys, stream_name, None)
         if hasattr(stream, "reconfigure"):
@@ -96,18 +71,7 @@ _LOCAL_CACHE: dict[str, int | None] = {}
 
 
 def criar_gateway_client() -> GatewayClient:
-    """Autentica no Sankhya via OAuth2 e retorna um ``GatewayClient`` pronto.
-
-    Lê as credenciais das variáveis de ambiente ``SANKHYA_CLIENT_ID``,
-    ``SANKHYA_CLIENT_SECRET``, ``SANKHYA_TOKEN`` e ``SANKHYA_AUTH_BASE_URL``.
-
-    Returns:
-        Instância de ``GatewayClient`` autenticada.
-
-    Raises:
-        RuntimeError: Se ``SANKHYA_CLIENT_ID`` ou ``SANKHYA_CLIENT_SECRET``
-            não estiverem definidos no ``.env``.
-    """
+    """Cria e autentica um GatewayClient Sankhya."""
     oauth = OAuthClient(base_url=SANKHYA_BASE_URL, token=SANKHYA_X_TOKEN)
 
     if not SANKHYA_CLIENT_ID or not SANKHYA_CLIENT_SECRET:
@@ -121,17 +85,7 @@ def criar_gateway_client() -> GatewayClient:
 
 
 def carregar_sql(caminho: Path) -> str:
-    """Lê e retorna o conteúdo de um arquivo SQL.
-
-    Args:
-        caminho: Caminho absoluto ou relativo para o arquivo ``.sql``.
-
-    Returns:
-        Conteúdo do arquivo como string (sem espaços nas extremidades).
-
-    Raises:
-        FileNotFoundError: Se o arquivo não existir no caminho informado.
-    """
+    """Carrega conteúdo SQL de um arquivo."""
     if not caminho.exists():
         raise FileNotFoundError(f"Arquivo SQL não encontrado: {caminho}")
 
@@ -141,21 +95,7 @@ def carregar_sql(caminho: Path) -> str:
 
 
 def buscar_produtos_sankhya(client: GatewayClient, sql: str) -> list[dict[str, Any]]:
-    """Executa o SQL informado via ``DbExplorerSP.executeQuery`` e retorna os produtos.
-
-    Transforma o resultado (``fieldsMetadata`` + ``rows``) em uma lista de
-    dicionários com os nomes das colunas como chaves.
-
-    Args:
-        client: ``GatewayClient`` já autenticado.
-        sql:    Consulta SQL a executar (deve retornar colunas da TGFPRO).
-
-    Returns:
-        Lista de dicionários, um por produto retornado pelo Sankhya.
-
-    Raises:
-        Exception: Se a resposta do Sankhya indicar erro (``is_success`` = False).
-    """
+    """Executa SQL na TGFPRO e retorna lista de dicionários."""
     console.print(Panel("🔍 Executando SQL no Sankhya...", style="cyan"))
 
     with console.status("[bold green]Consultando API Sankhya...", spinner="dots"):
@@ -184,21 +124,7 @@ def buscar_produtos_sankhya(client: GatewayClient, sql: str) -> list[dict[str, A
 
 
 def resolver_uom_odoo(conexao_odoo: OdooConexao, codvol: str) -> int | None:
-    """Resolve o ``CODVOL`` do Sankhya para o ID de ``uom.uom`` no Odoo.
-
-    Realiza busca exata por nome (case-insensitive). Utiliza cache local
-    (``_UOM_CACHE``) para evitar chamadas repetidas à API. Quando o nome
-    retornar mais de um resultado, a unidade é considerada ambígua e o
-    produto será sincronizado sem alterar a unidade de medida.
-
-    Args:
-        conexao_odoo: Conexão autenticada com o Odoo.
-        codvol:       Código de volume/unidade do Sankhya (ex: ``'UN'``, ``'KG'``).
-
-    Returns:
-        ID inteiro da ``uom.uom`` correspondente, ou ``None`` se não encontrada
-        ou ambígua.
-    """
+    """Resolve CODVOL (Sankhya) para uom.uom (Odoo) com busca deterministica."""
     original = str(codvol or "").strip()
     if not original:
         return None
@@ -232,18 +158,7 @@ def resolver_uom_odoo(conexao_odoo: OdooConexao, codvol: str) -> int | None:
 
 
 def obter_campos_modelo(conexao_odoo: OdooConexao, modelo: str) -> dict[str, Any]:
-    """Retorna os metadados de campos de um modelo Odoo com cache local.
-
-    Chama ``fields_get`` apenas na primeira consulta; nas seguintes, retorna
-    o resultado em cache (``_FIELDS_CACHE``).
-
-    Args:
-        conexao_odoo: Conexão autenticada com o Odoo.
-        modelo:       Nome técnico do modelo (ex: ``'product.template'``).
-
-    Returns:
-        Dicionário ``{nome_campo: {type, string, ...}}`` com os metadados.
-    """
+    """Retorna metadata de campos de um modelo Odoo com cache local."""
     if modelo in _FIELDS_CACHE:
         return _FIELDS_CACHE[modelo]
     campos = conexao_odoo.executar(modelo, "fields_get")
@@ -257,20 +172,7 @@ def _normalizar_ncm(valor: Any) -> str:
 
 
 def resolver_marca_odoo(conexao_odoo: OdooConexao, relation_model: str, nome_marca: str) -> int | None:
-    """Busca ou cria uma marca pelo nome para campos ``many2one`` de marca.
-
-    Pesquisa pelo nome exato no modelo informado. Se não encontrar, tenta
-    criar o registro. Utiliza cache local (``_BRAND_CACHE``) para evitar
-    chamadas repetidas.
-
-    Args:
-        conexao_odoo:    Conexão autenticada com o Odoo.
-        relation_model:  Modelo do campo many2one (ex: ``'product.brand'``).
-        nome_marca:      Nome da marca a buscar ou criar.
-
-    Returns:
-        ID inteiro da marca no Odoo, ou ``None`` em caso de falha na criação.
-    """
+    """Busca (ou cria) marca por nome para campos many2one de marca."""
     chave = f"{relation_model}:{nome_marca.strip().upper()}"
     if not nome_marca.strip():
         return None
@@ -323,19 +225,7 @@ def aplicar_campos_complementares(
     prod_snk: dict[str, Any],
     dados_odoo: dict[str, Any],
 ) -> None:
-    """Aplica NCM, Marca e Local Padrão em campos disponíveis no Odoo.
-
-    Inspeciona os metadados do modelo ``product.template`` e mapeia os
-    campos ``NCM``, ``MARCA`` e ``CODLOCALPADRAO`` do Sankhya para os
-    campos corretos do Odoo, com suporte a múltiplas convenções de
-    nomenclatura (campos padrão, ``l10n_br_*``, ``x_*``, ``x_studio_*``).
-
-    Args:
-        conexao_odoo: Conexão autenticada com o Odoo.
-        prod_snk:     Dicionário com os dados do produto vindo do Sankhya.
-        dados_odoo:   Dicionário de dados do produto para o Odoo (modificado
-                      in-place com os campos complementares encontrados).
-    """
+    """Aplica NCM, Marca e Local Padrao em campos padrao/custom disponiveis no Odoo."""
     campos_prod = obter_campos_modelo(conexao_odoo, "product.template")
 
     # NCM
@@ -387,27 +277,18 @@ def mapear_produto(
     prod_snk: dict[str, Any],
     conexao_odoo: OdooConexao,
 ) -> dict[str, Any]:
-    """Converte um registro da TGFPRO para o formato de ``product.template`` do Odoo.
+    """Mapeia campos da TGFPRO para product.template do Odoo.
 
     Mapeamento:
-        CODPROD        → default_code  (código interno, chave do upsert)
-        DESCRPROD      → name          (nome do produto)
-        (fixo 0.0)     → list_price    (preço — definido por tabela de preços)
-        REFFORN        → barcode       (referência do fornecedor)
-        PESOBRUTO      → weight        (peso bruto)
-        CODVOL         → uom_id / uom_po_id (unidade de medida)
-        USOPROD        → type / is_storable (``R`` → consu/True, ``S`` → service/False)
-        NCM            → ncm / l10n_br_ncm_id (se campo disponível no Odoo)
-        MARCA          → product_brand_id / x_marca (se campo disponível)
-        CODLOCALPADRAO → x_codlocal_padrao / x_local_padrao_id (se campo disponível)
-
-    Args:
-        prod_snk:     Dicionário com os dados do produto vindo do Sankhya.
-        conexao_odoo: Conexão autenticada com o Odoo (usada para resolver
-                      UoM, marcas e campos complementares).
-
-    Returns:
-        Dicionário pronto para ser usado em :func:`sincronizar_produto`.
+        CODPROD     → default_code  (código interno)
+        DESCRPROD   → name          (nome do produto)
+        (fixo)      → list_price    (preço fixo zero)
+        REFFORN     → barcode       (referência do fornecedor)
+        PESOBRUTO   → weight        (peso)
+        CODVOL      → uom_id/uom_po_id (unidade de medida padrão)
+        NCM         → ncm/l10n_br_ncm_id (se campo existir no Odoo)
+        MARCA       → product_brand_id/x_marca (se campo existir no Odoo)
+        CODLOCALPADRAO → x_codlocal_padrao/x_local_padrao_id (se campo existir no Odoo)
     """
     codprod = str(prod_snk.get("CODPROD", "")).strip()
     descrprod = str(prod_snk.get("DESCRPROD", "")).strip()
@@ -475,19 +356,10 @@ def sincronizar_produto(
     conexao_odoo: OdooConexao,
     dados_odoo: dict[str, Any],
 ) -> tuple[str, int]:
-    """Cria ou atualiza um produto no Odoo baseado no ``default_code``.
-
-    Busca o produto pelo ``default_code`` (CODPROD). Se não encontrar, cria
-    um novo registro. Se encontrar, atualiza todos os campos exceto o próprio
-    ``default_code``.
-
-    Args:
-        conexao_odoo: Conexão autenticada com o Odoo.
-        dados_odoo:   Dicionário de campos mapeados por :func:`mapear_produto`.
+    """Cria ou atualiza produto no Odoo baseado no default_code.
 
     Returns:
-        Tupla ``(acao, id)`` onde ``acao`` é ``'criado'`` ou ``'atualizado'``
-        e ``id`` é o ID do registro no Odoo.
+        Tupla (ação, id) onde ação é 'criado' ou 'atualizado'.
     """
     modelo = "product.template"
     codigo = dados_odoo["default_code"]
@@ -516,17 +388,7 @@ def sincronizar_produto(
 
 
 def executar_sincronizacao() -> None:
-    """Orquestra o fluxo completo de sincronização de produtos Sankhya → Odoo.
-
-    Etapas:
-        1. Autentica no Sankhya via OAuth2.
-        2. Carrega e executa o SQL de produtos (``loginSNK/sql/produtos.sql``).
-        3. Conecta ao Odoo via OdooRPC.
-        4. Itera sobre os produtos e chama :func:`mapear_produto` +
-           :func:`sincronizar_produto` para cada um, exibindo progresso
-           visual via ``rich``.
-        5. Exibe resumo final com totais de criados, atualizados e erros.
-    """
+    """Fluxo principal: Sankhya → Odoo."""
     console.print(Panel.fit("[bold white]🔄 SINCRONIZAÇÃO DE PRODUTOS: SANKHYA → ODOO[/bold white]", style="bold blue"))
 
     # 1. Conexão Sankhya
@@ -560,7 +422,7 @@ def executar_sincronizacao() -> None:
             str(p.get("CODPROD")), 
             str(p.get("DESCRPROD", "N/A")), 
             "R$ 0.00"
-        )
+0        )
     console.print(table)
     
     if len(produtos_snk) > 5:
