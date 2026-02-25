@@ -134,8 +134,8 @@ def buscar_dados_sankhya(client: GatewayClient, sql: str) -> list[dict[str, Any]
 CACHE_PRODUTOS = {}
 CACHE_LOCAIS = {}
 
-def carregar_mapa_produtos_odoo(conexao: OdooConexao, lote: int = 1000) -> dict[str, int]:
-    """Pré-carrega um mapa ``{default_code: product_id}`` para ``product.product``.
+def carregar_mapa_produtos_odoo(conexao: OdooConexao, lote: int = 1000) -> dict[str, dict[str, Any]]:
+    """Pré-carrega um mapa ``{default_code: info_produto}`` para ``product.product``.
 
     Itera em lotes para suportar catálogos grandes, evitando timeout na API.
 
@@ -144,16 +144,16 @@ def carregar_mapa_produtos_odoo(conexao: OdooConexao, lote: int = 1000) -> dict[
         lote:    Tamanho do lote de registros por chamada. Padrão: ``1000``.
 
     Returns:
-        Dicionário mapeando o código interno do produto ao ID de ``product.product``.
+        Dicionário mapeando o código interno do produto a um dict com id e type.
     """
-    mapa: dict[str, int] = {}
+    mapa: dict[str, dict[str, Any]] = {}
     offset = 0
 
     while True:
         produtos = conexao.search_read(
             "product.product",
             [["default_code", "!=", False]],
-            ["id", "default_code"],
+            ["id", "default_code", "type"],
             limite=lote,
             offset=offset,
         )
@@ -163,7 +163,10 @@ def carregar_mapa_produtos_odoo(conexao: OdooConexao, lote: int = 1000) -> dict[
         for produto in produtos:
             codigo = str(produto.get("default_code", "")).strip()
             if codigo:
-                mapa[codigo] = int(produto["id"])
+                mapa[codigo] = {
+                    "id": int(produto["id"]),
+                    "type": produto.get("type", "product")
+                }
 
         if len(produtos) < lote:
             break
@@ -171,8 +174,8 @@ def carregar_mapa_produtos_odoo(conexao: OdooConexao, lote: int = 1000) -> dict[
 
     return mapa
 
-def buscar_id_produto(conexao: OdooConexao, codprod: str) -> int | None:
-    """Busca o ID de ``product.product`` pelo código interno (``default_code``).
+def buscar_info_produto(conexao: OdooConexao, codprod: str) -> dict[str, Any] | None:
+    """Busca as informações de ``product.product`` pelo código interno (``default_code``).
 
     Consulta primeiro o cache global ``CACHE_PRODUTOS`` (populado por
     :func:`carregar_mapa_produtos_odoo`). Faz chamada à API apenas se o
@@ -183,16 +186,19 @@ def buscar_id_produto(conexao: OdooConexao, codprod: str) -> int | None:
         codprod: Código interno do produto (CODPROD no Sankhya).
 
     Returns:
-        ID inteiro do ``product.product``, ou ``None`` se não encontrado.
+        Dicionário com o id e type, ou ``None`` se não encontrado.
     """
     if str(codprod) in CACHE_PRODUTOS: return CACHE_PRODUTOS[str(codprod)]
     # Fallback caso não esteja no cache carregado (ex: novos produtos)
     # ATENÇÃO: usa 'limite'
-    res = conexao.search_read("product.product", [["default_code", "=", str(codprod)]], ["id"], limite=1)
+    res = conexao.search_read("product.product", [["default_code", "=", str(codprod)]], ["id", "type"], limite=1)
     if res:
-        pid = res[0]["id"]
-        CACHE_PRODUTOS[str(codprod)] = pid
-        return pid
+        info = {
+            "id": res[0]["id"],
+            "type": res[0].get("type", "product")
+        }
+        CACHE_PRODUTOS[str(codprod)] = info
+        return info
     return None
 
 def buscar_id_local(conexao: OdooConexao, codlocal: str) -> int | None:
@@ -242,12 +248,17 @@ def atualizar_estoque(conexao: OdooConexao, dados: dict[str, Any]) -> str:
     estoque = float(dados.get("ESTOQUE", 0.0))
     # reservado = float(dados.get("RESERVADO", 0.0))
     
-    # Busca IDs
-    pid = buscar_id_produto(conexao, codprod)
+    # Busca IDs e infos
+    info_prod = buscar_info_produto(conexao, codprod)
     lid = buscar_id_local(conexao, codlocal)
     
-    if not pid: return "produto_nao_encontrado"
+    if not info_prod: return "produto_nao_encontrado"
     if not lid: return "local_nao_encontrado"
+    
+    if info_prod.get("type") in ("service", "consu"):
+        return "produto_nao_estocavel"
+        
+    pid = info_prod["id"]
     
     # Upsert stock.quant
     modelo = "stock.quant"
@@ -328,7 +339,7 @@ def executar() -> None:
             try:
                 res = atualizar_estoque(conexao_odoo, item)
                 
-                if res in ["produto_nao_encontrado", "local_nao_encontrado"]:
+                if res in ["produto_nao_encontrado", "local_nao_encontrado", "produto_nao_estocavel"]:
                     ignorados += 1
                 else:
                     processados += 1
@@ -336,9 +347,14 @@ def executar() -> None:
                 progress.update(task, advance=1, description=f"[cyan]Item {item.get('CODPROD')}")
                 
             except Exception as e:
-                erros += 1
-                console.print(f"[red]Erro no item {item.get('CODPROD')}: {e}[/red]")
-                progress.update(task, advance=1)
+                msg_erro = str(e)
+                if "consumíveis ou serviços" in msg_erro or "consumables or services" in msg_erro.lower():
+                    ignorados += 1
+                    progress.update(task, advance=1, description=f"[yellow]Ignorado (Consumo): {item.get('CODPROD')}[/yellow]")
+                else:
+                    erros += 1
+                    console.print(f"[red]Erro no item {item.get('CODPROD')}: {e}[/red]")
+                    progress.update(task, advance=1)
 
     # Resumo
     summary = Table(title="Resumo Estoque")
