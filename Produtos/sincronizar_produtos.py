@@ -308,16 +308,13 @@ def mapear_produto(
     codvol = str(prod_snk.get("CODVOL", "")).strip()
     uom_id = resolver_uom_odoo(conexao_odoo, codvol)
 
-    # Mapeamento para Odoo 19:
-    # - type: consu/service/combo
-    # - is_storable: controla se o produto movimenta estoque
+    # Mapeamento para Odoo 18:
+    # - type: product (estocável) / consu (consumível) / service
     usoprod = str(prod_snk.get("USOPROD", "R")).strip().upper()
-    tipo_odoo = "consu"
-    is_storable = True
+    tipo_odoo = "product"  # Odoo 18: 'product' = estocável
 
     if usoprod == "S":
         tipo_odoo = "service"
-        is_storable = False
 
     dados_odoo = {
         "name": descrprod or f"Produto {codprod}",
@@ -327,7 +324,6 @@ def mapear_produto(
         "sale_ok": False,
         "purchase_ok": True,
         "type": tipo_odoo,
-        "is_storable": is_storable,
     }
 
 
@@ -422,7 +418,7 @@ def executar_sincronizacao() -> None:
             str(p.get("CODPROD")), 
             str(p.get("DESCRPROD", "N/A")), 
             "R$ 0.00"
-0        )
+        )
     console.print(table)
     
     if len(produtos_snk) > 5:
