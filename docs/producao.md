@@ -13,7 +13,7 @@ Sincroniza funcionarios do sistema Rubi (banco Oracle) para `hr.employee` no Odo
 **Origem:** tabelas `VETORH.R034FUN`, `VETORH.R038HCC`, `VETORH.R018CCU`, `VETORH.R024CAR`
 
 | Campo Rubi | hr.employee (Odoo) | Descricao |
-|------------|--------------------|-----------|
+|------------|--------------------|-----------| 
 | `NUMCAD` | `barcode` | Numero de cracha (chave do upsert) |
 | `NOMFUN` | `name` | Nome do funcionario |
 | `TITCAR` | `job_title` | Cargo |
@@ -46,6 +46,37 @@ python producao/setup_fundicao.py
 
 ---
 
+## App Inspecao (Interface Web)
+
+**Arquivo:** `producao/app_inspecao.py`
+
+Aplicacao **Flask** para registro de nao conformidades por fundidor via interface web. Fornece fluxo visual com checkboxes, data/hora automatica e historico de registros.
+
+**Funcionalidades:**
+- Selecao de fundidor com busca por nome/badge
+- Checklist visual de motivos de NC
+- Registro de alertas de qualidade (`quality.alert`) no Odoo
+- Pagina de historico com ultimos registros
+- Interface responsiva dark mode
+
+**Fluxo:**
+1. Selecionar fundidor do departamento de Fundicao
+2. Marcar nao conformidades observadas ou confirmar "Nenhuma NC"
+3. Alertas sao criados automaticamente no Odoo
+
+```bash
+# Instalar Flask (se necessario)
+pip install flask
+
+# Iniciar servidor
+python producao/app_inspecao.py
+# Acesse: http://localhost:5050
+```
+
+> **Requer:** equipe de qualidade e motivos de NC configurados (execute `setup_fundicao.py` antes).
+
+---
+
 ## Registrar Nao Conformidade
 
 **Arquivo:** `producao/registrar_nc.py`
@@ -70,6 +101,18 @@ Registra em lote as nao conformidades do dia atual. Util para automacao via agen
 
 ```bash
 python producao/registro_diario_nc.py
+```
+
+---
+
+## Demo NC Diario
+
+**Arquivo:** `producao/demo_nc_diario.py`
+
+Cria exemplos de registro diario de NC para demonstracao. Simula inspecao de 3 fundidores com diferentes NCs (Bolhas, Trincas, Porosidade, etc.).
+
+```bash
+python producao/demo_nc_diario.py
 ```
 
 ---
@@ -110,6 +153,20 @@ python producao/config_bom_massa.py
 
 ---
 
+## Consulta Oracle (SAN001)
+
+**Arquivo:** `producao/get_san001.py`
+
+Conecta ao Oracle e retorna registros da tabela `GRUPOAEL.SAN001`. Utilizado para consultas especificas do setor de producao.
+
+```bash
+python producao/get_san001.py
+```
+
+> **Requer:** variaveis `ORACLE_*` configuradas no `.env`.
+
+---
+
 ## Scripts de Verificacao
 
 Utilitarios para validar o estado dos dados apos sincronizacoes.
@@ -125,3 +182,18 @@ python producao/verify_bom.py
 python producao/verify_sync.py
 python producao/verify_alerts.py
 ```
+
+---
+
+## Scripts Auxiliares de Inspecao
+
+Scripts de debug e analise utilizados durante desenvolvimento. Nao fazem parte do fluxo principal.
+
+| Script | Descricao |
+|--------|-----------|
+| `producao/inspect_odoo_data.py` | Inspeciona dados do Odoo |
+| `producao/inspect_quality_module.py` | Inspeciona modulo de qualidade |
+| `producao/inspect_bom_products.py` | Inspeciona produtos com BOM |
+| `producao/inspect_fields.py` | Inspeciona campos de modelos |
+| `producao/delete_tables.py` | Remove produtos-exemplo (Table) |
+| `producao/analyze_data.py` | Analise de dados |

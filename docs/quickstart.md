@@ -7,7 +7,7 @@ Guia rapido para instalacao e primeira execucao do projeto.
 ## Requisitos
 
 - **Python** 3.10+
-- **Odoo** 19 Enterprise (SaaS ou on-premise)
+- **Odoo** 18 Enterprise (SaaS ou on-premise)
 - **Sankhya** com API Gateway habilitada
 - **Oracle** (opcional, para sincronizacao de funcionarios via Rubi)
 
@@ -28,11 +28,11 @@ cp .env.example .env
 | Dependencia | Uso |
 |-------------|-----|
 | `python-dotenv` | Carregamento de variaveis de ambiente |
-| `requests` | Requisicoes HTTP |
 | `odoorpc` | Comunicacao JSON-RPC com Odoo |
 | `sankhya-sdk-python` | Autenticacao OAuth2 e API Gateway Sankhya |
 | `rich` | Saida formatada no terminal (tabelas, progresso) |
 | `oracledb` | Conexao com banco Oracle (Rubi) |
+| `flask` | Interface web para inspecao de fundicao (opcional) |
 
 ---
 
@@ -48,7 +48,7 @@ cp .env.example .env
 
 ```env
 # =============================================
-# CONEXAO ODOO 19
+# CONEXAO ODOO 18
 # =============================================
 ODOO_URL=https://sua-empresa.odoo.com
 ODOO_DB=nome_do_banco
@@ -62,7 +62,6 @@ ODOO_SENHA=sua_senha_segura
 SANKHYA_CLIENT_ID=seu_client_id
 SANKHYA_CLIENT_SECRET=seu_client_secret
 SANKHYA_TOKEN=seu_token_proprietario
-SANKHYA_AUTH_BASE_URL=https://api.sankhya.com.br
 
 # =============================================
 # CONEXAO ORACLE / RUBI (opcional)
@@ -86,6 +85,9 @@ python loginOdoo/conexao.py
 
 # Testar conexao com Sankhya
 python loginSNK/conexao.py
+
+# Verificar modulos instalados no Odoo
+python verificar_modulos_odoo.py
 ```
 
 ---
@@ -95,6 +97,9 @@ python loginSNK/conexao.py
 Para uma carga inicial completa, execute nesta ordem:
 
 ```bash
+# 0. Empresa (sincroniza dados da empresa no Odoo)
+python Produtos/sincronizar_empresa.py
+
 # 1. Grupos de produtos (categorias)
 python Produtos/sincronizar_grupos.py
 
@@ -114,6 +119,8 @@ python Parceiros/sincronizar_parceiros.py
 python producao/sync_funcionarios.py
 ```
 
+> **Nota:** O modulo `stock` (Inventario) precisa estar instalado no Odoo para os scripts de estoque e locais funcionarem. Verifique com `python verificar_modulos_odoo.py`.
+
 > **Dica:** Consulte [modulos-sincronizacao.md](modulos-sincronizacao.md) para detalhes de mapeamento de campos de cada modulo.
 
 ---
@@ -123,5 +130,6 @@ python producao/sync_funcionarios.py
 - [Arquitetura](arquitetura.md) — Diagrama de fluxo e modelos do Odoo
 - [Modulos de Sincronizacao](modulos-sincronizacao.md) — Detalhes de cada modulo
 - [Producao](producao.md) — Scripts do setor de producao
+- [Mapeamento Fiscal](mapeamento-fiscal-sankhya-odoo.md) — De-para fiscal Sankhya → Odoo BR
 - [SQL Queries](sql-queries.md) — Personalizacao de queries
 - [Troubleshooting](troubleshooting.md) — Erros comuns e solucoes

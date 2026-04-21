@@ -22,25 +22,50 @@ conexao = criar_conexao()
 parceiros = conexao.search_read('res.partner', campos=['name', 'email'], limite=10)
 
 # Criar registro
-produto_id = conexao.criar('product.template', {'name': 'Produto X', 'type': 'consu'})
+produto_id = conexao.criar('product.template', {'name': 'Produto X', 'type': 'product'})
 
 # Atualizar registro
 conexao.atualizar('product.template', produto_id, {'list_price': 99.90})
 
 # Excluir registro
 conexao.excluir('product.template', produto_id)
+
+# Executar metodo arbitrario
+campos_info = conexao.executar('product.template', 'fields_get')
 ```
 
 ### Classes e funcoes principais
 
 | Classe / Funcao | Descricao |
-|----------------|-----------|
+|----------------|-----------| 
 | `OdooConfig` | Dataclass com credenciais de conexao |
 | `OdooConexao` | Gerencia conexao e operacoes CRUD |
 | `carregar_configuracao()` | Le credenciais do `.env` |
 | `criar_conexao()` | Cria e retorna conexao ja autenticada |
+| `OdooError` | Excecao base para erros do modulo |
 | `OdooConfigError` | Excecao: variaveis de ambiente ausentes |
 | `OdooConnectionError` | Excecao: falha na conexao |
+
+### Metodos de OdooConexao
+
+| Metodo | Descricao |
+|--------|-----------|
+| `conectar()` | Abre conexao JSON-RPC e autentica |
+| `search_read(modelo, dominio, campos, limite, offset, ordem)` | Busca registros com filtros |
+| `criar(modelo, valores)` | Cria novo registro, retorna ID |
+| `atualizar(modelo, ids, valores)` | Atualiza um ou mais registros |
+| `excluir(modelo, ids)` | Remove um ou mais registros |
+| `executar(modelo, metodo, args, kwargs)` | Executa metodo arbitrario via RPC |
+| `obter_versao()` | Consulta versao do servidor Odoo |
+
+### Propriedades de OdooConexao
+
+| Propriedade | Descricao |
+|-------------|-----------|
+| `conectado` | Se a conexao esta ativa (`bool`) |
+| `uid` | User ID apos autenticacao |
+| `odoo` | Instancia OdooRPC nativa (uso avancado) |
+| `config` | Configuracao utilizada |
 
 ### Variaveis de ambiente necessarias
 
@@ -78,16 +103,20 @@ session = conexao.session
 
 # Headers para requisicoes manuais
 headers = conexao.obter_headers_autorizacao()
+
+# Verificar status
+print(conexao.autenticado)  # True
 ```
 
 ### Classes e funcoes principais
 
 | Classe / Funcao | Descricao |
-|----------------|-----------|
+|----------------|-----------| 
 | `SankhyaConfig` | Dataclass com credenciais OAuth2 |
 | `SankhyaConexao` | Gerencia autenticacao e sessao |
 | `carregar_configuracao_sankhya()` | Le credenciais do `.env` |
 | `criar_conexao_sankhya()` | Cria e retorna conexao ja autenticada |
+| `SankhyaError` | Excecao base para erros do modulo |
 | `SankhyaConfigError` | Excecao: variaveis de ambiente ausentes |
 | `SankhyaAuthError` | Excecao: falha na autenticacao OAuth2 |
 
@@ -97,8 +126,9 @@ headers = conexao.obter_headers_autorizacao()
 SANKHYA_CLIENT_ID=seu_client_id
 SANKHYA_CLIENT_SECRET=seu_client_secret
 SANKHYA_TOKEN=seu_token_proprietario
-SANKHYA_AUTH_BASE_URL=https://api.sankhya.com.br
 ```
+
+> **Nota:** A URL base da API (`https://api.sankhya.com.br`) e usada como padrao. Para sobrescrever, configure `SANKHYA_AUTH_BASE_URL` no `.env`.
 
 ### Testar conexao
 
@@ -117,9 +147,12 @@ Consulte `loginSNK/dbexplorer_EXAMPLE.py` para um exemplo completo de execucao d
 | Script | Descricao |
 |--------|-----------|
 | `inspect_odoo.py` | Inspeciona modelos e campos do Odoo (util para descobrir nomes de campos) |
-| `verificar_modulos_odoo.py` | Lista todos os modulos instalados no Odoo |
+| `verificar_modulos_odoo.py` | Lista todos os modulos instalados no Odoo e verifica modulos especificos |
+| `check_companies.py` | Consulta empresas cadastradas no Odoo (ID, nome, CNPJ) |
+| `delete_company.py` | Utilitario para renomear/arquivar empresa no Odoo |
 
 ```bash
 python inspect_odoo.py
 python verificar_modulos_odoo.py
+python check_companies.py
 ```

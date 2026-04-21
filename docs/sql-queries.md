@@ -20,6 +20,45 @@ query = sql_path.read_text(encoding="utf-8")
 
 ## Queries do Sankhya (`loginSNK/sql/`)
 
+### empresa.sql — Dados da Empresa
+
+Retorna dados cadastrais, endereco e informacoes fiscais/tributarias da empresa.
+
+```sql
+SELECT 
+    EMP.CODEMP AS CODIGO_EMPRESA,
+    EMP.RAZAOSOCIAL AS RAZAO_SOCIAL,
+    EMP.NOMEFANTASIA AS NOME_FANTASIA,
+    EMP.CGC AS CNPJ_CPF,
+    EMP.INSCESTAD AS INSCRICAO_ESTADUAL,
+    EMP.INSCMUN AS INSCRICAO_MUNICIPAL,
+    EMP.EMAIL,
+    EMP.HOMEPAGE AS SITE,
+    EMP.TELEFONE,
+    ENDER.TIPO AS TIPO_LOGRADOURO,
+    ENDER.NOMEEND AS LOGRADOURO,
+    EMP.NUMEND AS NUMERO,
+    EMP.COMPLEMENTO,
+    BAI.NOMEBAI AS BAIRRO,
+    CID.NOMECID AS CIDADE,
+    CID.UF AS CODIGO_UF,
+    EMP.CEP,
+    EMP.CODREGTRIB AS CODIGO_REGIME_TRIBUTARIO,
+    EMP.CNAEPREPON AS CNAE_PREPONDERANTE,
+    EMP.NATJUR AS NATUREZA_JURIDICA
+FROM TSIEMP EMP
+LEFT JOIN TSIEND ENDER ON EMP.CODEND = ENDER.CODEND
+LEFT JOIN TSIBAI BAI   ON EMP.CODBAI = BAI.CODBAI
+LEFT JOIN TSICID CID   ON EMP.CODCID = CID.CODCID
+WHERE EMP.CODEMP = 1
+```
+
+**Personalizacoes comuns:**
+- Remover filtro `WHERE EMP.CODEMP = 1` para sincronizar todas as empresas
+- Adicionar campos adicionais como `SIMPLES`, `CLASSTRIB`, etc.
+
+---
+
 ### produtos.sql — Produtos Ativos
 
 Retorna produtos ativos com filtro por codigo de produto.

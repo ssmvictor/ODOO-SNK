@@ -4,6 +4,46 @@ Detalhes de cada modulo de sincronizacao: mapeamento de campos, logica de upsert
 
 ---
 
+## Empresa
+
+**Arquivo:** `Produtos/sincronizar_empresa.py`
+
+Sincroniza dados da empresa do Sankhya (`TSIEMP`) para o modelo `res.company` do Odoo.
+
+**Mapeamento de campos:**
+
+| TSIEMP (Sankhya) | res.company (Odoo) | Descricao |
+|------------------|--------------------|-----------|
+| `CODEMP` | — | Codigo da empresa (referencia interna) |
+| `RAZAOSOCIAL` | `legal_name` | Razao social |
+| `NOMEFANTASIA` | `name` | Nome fantasia |
+| `CGC` | `vat` / `company_registry` | CNPJ (chave do upsert) |
+| `INSCESTAD` | `l10n_br_ie_code` | Inscricao estadual |
+| `INSCMUN` | `l10n_br_im_code` | Inscricao municipal |
+| `EMAIL` | `email` | E-mail |
+| `HOMEPAGE` | `website` | Site |
+| `TELEFONE` | `phone` | Telefone |
+| `NOMEEND` + `TIPO` | `street` | Logradouro |
+| `NUMEND` + `NOMEBAI` | `street2` | Numero + Bairro |
+| `NOMECID` | `city` | Cidade |
+| `CEP` | `zip` | CEP |
+| `UF` | `state_id` | Estado (via codigo UF) |
+| — | `country_id` | Fixo: Brasil |
+| `CODREGTRIB` | `tax_framework` | Regime tributario (1=SN, 2=SN Sublimite, 3=Normal) |
+| `CNAEPREPON` | `cnae_main_id` | CNAE principal (lookup `l10n_br_fiscal.cnae`) |
+| `NATJUR` | `legal_nature_id` | Natureza juridica |
+
+**Logica de upsert:**
+- Busca por CNPJ (`vat` ou `company_registry`)
+- Se nao existir e a empresa padrao (ID=1) estiver sem CNPJ, atualiza ela
+- Caso contrario, cria nova empresa
+
+```bash
+python Produtos/sincronizar_empresa.py
+```
+
+---
+
 ## Produtos
 
 **Arquivo:** `Produtos/sincronizar_produtos.py`
@@ -13,13 +53,13 @@ Sincroniza produtos ativos do Sankhya (`TGFPRO`) para o modelo `product.template
 **Mapeamento de campos:**
 
 | TGFPRO (Sankhya) | product.template (Odoo) | Descricao |
-|-------------------|------------------------|-----------|
+|-------------------|------------------------|-----------| 
 | `CODPROD` | `default_code` | Codigo interno (chave do upsert) |
 | `DESCRPROD` | `name` | Nome do produto |
 | `REFFORN` | `barcode` | Referencia do fornecedor |
 | `PESOBRUTO` | `weight` | Peso bruto |
 | `CODVOL` | `uom_id` / `uom_po_id` | Unidade de medida |
-| `USOPROD` | `type` / `is_storable` | `R` → `consu` (estocavel), `S` → `service` |
+| `USOPROD` | `type` | `R` → `product` (estocavel), `S` → `service` |
 | `NCM` | `ncm` / `l10n_br_ncm_code_id` | NCM fiscal (lookup por codigo mascarado `####.##.##`) |
 | `CODESPECST` | `l10n_br_cest_code` | CEST fiscal (7 digitos) |
 | `UNITRIBUTACAO` | `l10n_br_legal_uom_id` | Unidade tributavel legal (via `uom.uom`) |
@@ -56,12 +96,12 @@ python Produtos/sincronizar_produtos.py
 
 Sincroniza saldos de estoque do Sankhya (`TGFEST`) para o modelo `stock.quant` do Odoo.
 
-> **ATENCAO:** Requer que os produtos (`sincronizar_produtos.py`) e os locais (`sincronizar_locais.py`) ja estejam sincronizados no Odoo.
+> **ATENCAO:** Requer que os produtos (`sincronizar_produtos.py`) e os locais (`sincronizar_locais.py`) ja estejam sincronizados no Odoo. Requer tambem o modulo `stock` instalado.
 
 **Mapeamento de campos:**
 
 | TGFEST (Sankhya) | stock.quant (Odoo) | Descricao |
-|------------------|-------------------|-----------|
+|------------------|-------------------|-----------| 
 | `CODPROD` | `product_id` | Produto (via `default_code`) |
 | `CODLOCAL` | `location_id` | Local de estoque (via `barcode`) |
 | `ESTOQUE` | `inventory_quantity` | Quantidade em estoque |
@@ -86,7 +126,7 @@ Sincroniza a estrutura de grupos de produtos do Sankhya (`TGFGRU`) para `product
 **Mapeamento de campos:**
 
 | TGFGRU (Sankhya) | product.category (Odoo) | Descricao |
-|------------------|------------------------|-----------|
+|------------------|------------------------|-----------| 
 | `CODGRUPOPROD` | `name` (prefixo `[COD]`) | Codigo do grupo |
 | `DESCRGRUPOPROD` | `name` | Descricao do grupo |
 | `CODGRUPAI` | `parent_id` | Codigo do grupo pai |
@@ -108,10 +148,12 @@ python Produtos/sincronizar_grupos.py
 
 Sincroniza os locais de estoque do Sankhya (`TGFLOC`) para `stock.location` no Odoo, respeitando hierarquia pai/filho.
 
+> **ATENCAO:** Requer o modulo `stock` instalado no Odoo.
+
 **Mapeamento de campos:**
 
 | TGFLOC (Sankhya) | stock.location (Odoo) | Descricao |
-|------------------|----------------------|-----------|
+|------------------|-----------------------|-----------| 
 | `CODLOCAL` | `barcode` | Codigo do local (chave do upsert) |
 | `DESCRLOCAL` | `name` | Descricao do local |
 | `CODLOCALPAI` | `location_id` | Local pai na hierarquia |
@@ -138,7 +180,7 @@ Sincroniza parceiros (clientes, fornecedores, transportadoras, etc.) do Sankhya 
 **Mapeamento principal de campos:**
 
 | TGFPAR (Sankhya) | res.partner (Odoo) | Descricao |
-|------------------|--------------------|-----------|
+|------------------|--------------------|-----------| 
 | `CODPARC` | `ref` / `x_sankhya_id` | Codigo do parceiro (chave do upsert) |
 | `RAZAOSOCIAL` | `name` | Razao social |
 | `NOMEPARC` | `name` (fallback) | Nome do parceiro |
